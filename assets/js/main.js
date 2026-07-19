@@ -98,30 +98,7 @@ window.toggleMore = function(el){
 };
 
 // ===== Notice board tabs (home sidebar) =====
-const noticeData = {
-  dakhil:[['দাখিল রুটিন ২০২৬ প্রকাশিত','নতুন'],['দাখিল নির্বাচনী পরীক্ষার ফলাফল','১০ জুলাই'],['দাখিল ভর্তি নির্দেশিকা','০২ জুলাই']],
-  alim:[['আলিম বৃত্তি পরীক্ষার সময়সূচি','নতুন'],['আলিম ১ম বর্ষ ভর্তি তালিকা','২৮ জুন']],
-  fazil:[['ফাযিল (অনার্স) ক্লাস শুরুর তারিখ','৫ জুলাই'],['ফাযিল প্রবেশপত্র বিতরণ','২০ জুন']],
-  kamil:[['কামিল মাস্টার্স ভর্তি বিজ্ঞপ্তি','নতুন'],['কামিল হাদিস বিভাগ সেমিনার','১৫ জুন']]
-};
-const noticeGrid = document.getElementById('noticeGrid');
-if(noticeGrid){
-  function renderNotice(tab){
-    const list = document.getElementById('noticeList');
-    list.innerHTML = '';
-    noticeData[tab].forEach(([t,d])=>{
-      list.innerHTML += `<a href="notice.html">${t} <small class="text-secondary float-end">${d}</small></a>`;
-    });
-  }
-  noticeGrid.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      noticeGrid.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      renderNotice(btn.dataset.t);
-    });
-  });
-  renderNotice('dakhil');
-}
+
 
 // ===== Calendar =====
 const calBody = document.getElementById('calBody');
@@ -314,3 +291,19 @@ if(contactForm){
     setTimeout(()=>document.getElementById('contactSuccess').classList.add('d-none'), 4000);
   });
 }
+
+document.querySelectorAll('.menu .menu-item-has-children > a').forEach(function(item){
+
+    item.addEventListener('click',function(e){
+
+        if(window.innerWidth < 992){
+
+            e.preventDefault();
+
+            this.parentElement.classList.toggle('active');
+
+        }
+
+    });
+
+});

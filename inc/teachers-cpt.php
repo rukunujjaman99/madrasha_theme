@@ -129,6 +129,8 @@ function rs_save_teacher_meta($post_id){
     }
 
 }
+
+
 add_action('save_post_teacher','rs_save_teacher_meta');
 
 

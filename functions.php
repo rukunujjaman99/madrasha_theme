@@ -5,6 +5,17 @@
 
 require_once get_template_directory() . '/inc/slider-cpt.php';
 require_once get_template_directory() . '/inc/teachers-cpt.php';
+require_once get_template_directory() . '/inc/feature-cpt.php';
+require_once get_template_directory() . '/inc/student-cpt.php';
+require_once get_template_directory() . '/inc/history-cpt.php';
+require_once get_template_directory() . '/inc/notice-cpt.php';
+require_once get_template_directory() . '/inc/download-form-cpt.php';
+require_once get_template_directory() . '/inc/image-gallery-cpt.php';
+
+
+require_once get_template_directory() . '/inc/customizer.php';
+
+
 
 function madarsa_enqueue_assets() {
 
@@ -57,14 +68,31 @@ function madarsa_enqueue_assets() {
         true
     );
 
-    // Theme Main JS
-    wp_enqueue_script(
-        'madarsa-main',
-        get_template_directory_uri() . '/assets/js/main.js',
-        array('bootstrap'),
-        filemtime(get_template_directory() . '/assets/js/main.js'),
-        true
-    );
+        // Theme Main JS
+        wp_enqueue_script(
+            'madarsa-main',
+            get_template_directory_uri() . '/assets/js/main.js',
+            array('bootstrap'),
+            filemtime(get_template_directory() . '/assets/js/main.js'),
+            true
+        );
+             wp_enqueue_script(
+            'student-filter',
+            get_template_directory_uri() . '/assets/js/student.js',
+            array('bootstrap'),
+            filemtime(get_template_directory() . '/assets/js/student.js'),
+            true
+        );
+             wp_enqueue_script(
+            'notice-filter',
+            get_template_directory_uri() . '/assets/js/notice.js',
+            array('bootstrap'),
+            filemtime(get_template_directory() . '/assets/js/notice.js'),
+            true
+        );
+        
+
+
 }
 add_action('wp_enqueue_scripts', 'madarsa_enqueue_assets');
 
@@ -90,7 +118,7 @@ function madarsa_setup_theme() {
 
     // Register navigation menu
     register_nav_menus(array(
-        'primary' => __('Primary Menu', 'madarsa'),
+        'Primary' => __('Primary', 'madarsa'),
     ));
 }
 

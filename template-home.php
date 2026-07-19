@@ -75,80 +75,200 @@ get_header(); ?>
 
 </div>
 
-      <div class="welcome-block reveal">
-        <h2>কাউনিয়া বালিকা ফাজিল (ডিগ্রি) মডেল মাদ্রাসায় আপনাকে স্বাগতম</h2>
-        <hr style="border-color:var(--orange);width:70px;border-width:2px;opacity:1;">
-        <p>ঢাকার অদূরে দেমরায় অবস্থিত এই প্রতিষ্ঠান দীর্ঘ আশি বছরের বেশি সময় ধরে এলাকার শিক্ষা-দীক্ষার কেন্দ্রবিন্দু হিসেবে কাজ করে যাচ্ছে। কুরআন-হাদিসের জ্ঞানের পাশাপাশি আধুনিক শিক্ষার সমন্বয়ে হাজারো শিক্ষার্থীকে যোগ্য নাগরিক হিসেবে গড়ে তোলা এই প্রতিষ্ঠানের মূল লক্ষ্য।</p>
-        <p class="more-text" style="display:none;">এক সময়ের জনমানবহীন প্রান্তর থেকে ধাপে ধাপে আজকের সুবিশাল ক্যাম্পাসে রূপান্তরিত হওয়ার পেছনে রয়েছে স্থানীয় আলেম ও দানশীল ব্যক্তিবর্গের অক্লান্ত পরিশ্রম। ১৯৯০ সনে ইবতেদায়ী স্তরে যাত্রা শুরু করে ধারাবাহিকভাবে দাখিল, আলিম, ফাযিল এবং সবশেষে কামিল স্তর পর্যন্ত মাদরাসাকে উন্নীত করা হয়েছে।</p>
-        <span class="read-more-toggle" onclick="toggleMore(this)">আরও পড়ুন <i class="bi bi-chevron-down"></i></span>
-      </div>
+    <div class="welcome-block reveal">
+
+    <h2>
+        <?php echo esc_html(get_theme_mod('rs_home_about_title')); ?>
+    </h2>
+
+    <hr style="border-color:var(--orange);width:70px;border-width:2px;opacity:1;">
+
+    <p>
+        <?php
+        echo nl2br(
+            esc_html(
+                get_theme_mod('rs_home_about_description')
+            )
+        );
+        ?>
+    </p>
+
+    <?php if(get_theme_mod('rs_home_about_more')): ?>
+
+    <p class="more-text" style="display:none;">
+
+        <?php
+        echo nl2br(
+            esc_html(
+                get_theme_mod('rs_home_about_more')
+            )
+        );
+        ?>
+
+    </p>
+
+    <span class="read-more-toggle" onclick="toggleMore(this)">
+
+        <?php echo esc_html(get_theme_mod('rs_home_about_btn','আরও পড়ুন')); ?>
+
+        <i class="bi bi-chevron-down"></i>
+
+    </span>
+
+    <?php endif; ?>
+
+</div>
 
       <!-- NEW: features -->
-      <div class="mt-5 reveal">
+     <?php
+/**
+ * Frontend Output — Madrasha Feature Section
+ * Drop this where the static "কেন কাউনিয়া বালিকা ফাজিল" block used to be
+ * (e.g. front-page.php / home.php / a template part).
+ *
+ * Pulls the latest published "madrasha_feature" post.
+ * Post Title  -> Section Title
+ * Repeater    -> Feature Cards (icon, title, description)
+ */
+
+$feature_post = get_posts( array(
+    'post_type'      => 'madrasha_feature',
+    'posts_per_page' => 1,
+    'post_status'    => 'publish',
+    'orderby'        => 'date',
+    'order'          => 'DESC',
+) );
+
+if ( ! empty( $feature_post ) ) :
+
+    $feature_post = $feature_post[0];
+    $section_title = get_the_title( $feature_post->ID );
+    $items = get_post_meta( $feature_post->ID, '_rs_feature_items', true );
+
+    if ( is_array( $items ) && ! empty( $items ) ) :
+    ?>
+
+    <div class="mt-5 reveal">
         <div class="section-title text-start">
-          <h3 style="font-size:1.3rem;">কেন কাউনিয়া বালিকা ফাজিল</h3>
+            <h3 style="font-size:1.3rem;"><?php echo esc_html( $section_title ); ?></h3>
         </div>
         <div class="row g-3">
-          <div class="col-6 col-md-3">
-            <div class="feature-card"><div class="feature-icon"><i class="bi bi-book-half"></i></div><h6 class="fw-bold" style="color:var(--navy)">কুরআন-হাদিস শিক্ষা</h6><small class="text-secondary">নূরানী থেকে কামিল পর্যন্ত মানসম্মত দ্বীনি শিক্ষা</small></div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="feature-card"><div class="feature-icon"><i class="bi bi-house-heart"></i></div><h6 class="fw-bold" style="color:var(--navy)">আবাসিক ব্যবস্থা</h6><small class="text-secondary">নিরাপদ ও শৃঙ্খলাপূর্ণ হোস্টেল সুবিধা</small></div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="feature-card"><div class="feature-icon"><i class="bi bi-award"></i></div><h6 class="fw-bold" style="color:var(--navy)">বৃত্তি কার্যক্রম</h6><small class="text-secondary">মেধাবী ও দুস্থ শিক্ষার্থীদের জন্য বৃত্তি</small></div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="feature-card"><div class="feature-icon"><i class="bi bi-trophy"></i></div><h6 class="fw-bold" style="color:var(--navy)">খেলাধুলা ও সহশিক্ষা</h6><small class="text-secondary">নিয়মিত ক্রীড়া ও সাংস্কৃতিক কার্যক্রম</small></div>
-          </div>
+            <?php foreach ( $items as $item ) :
+                if ( empty( $item['title'] ) && empty( $item['desc'] ) ) {
+                    continue;
+                }
+            ?>
+            <div class="col-6 col-md-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="<?php echo esc_attr( $item['icon'] ); ?>"></i>
+                    </div>
+                    <h6 class="fw-bold" style="color:var(--navy)">
+                        <?php echo esc_html( $item['title'] ); ?>
+                    </h6>
+                    <small class="text-secondary">
+                        <?php echo esc_html( $item['desc'] ); ?>
+                    </small>
+                </div>
+            </div>
+            <?php endforeach; ?>
         </div>
-      </div>
+    </div>
+
+    <?php
+    endif;
+endif;
+?>
 
       <!-- Best of the year -->
-      <div class="my-5 reveal" id="best">
-        <div class="section-title"><h3>এ বছরের সেরা শিক্ষার্থী</h3><p>বিভাগ অনুযায়ী ফিল্টার করুন, বিস্তারিত দেখতে ছবিতে ক্লিক করুন</p></div>
-        <div class="text-center gallery-filter mb-4" id="studentFilter">
-          <button class="active" data-dept="all">সকল</button>
-          <button data-dept="dakhil">দাখিল</button>
-          <button data-dept="alim">আলিম</button>
-          <button data-dept="fazil">ফাযিল</button>
-          <button data-dept="kamil">কামিল</button>
-        </div>
-        <div class="row g-3" id="studentGrid">
-          <div class="col-6 col-md-3 student-col">
-            <div class="student-card" data-dept="dakhil" data-bs-toggle="modal" data-bs-target="#stuModal"
-                 data-info='{"name":"তাসনিম জাহান","dept":"দাখিল বিভাগ","res":"জিপিএ ৫.০০","roll":"রোল: ০১","img":"https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=400"}'>
-              <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=400" alt="">
-              <div class="student-badge">জিপিএ ৫.০০</div>
-              <div class="cap">দাখিল — তাসনিম জাহান</div>
+     <?php
+/**
+ * Frontend Output — Best Students Section
+ * Drop this where the static "এ বছরের সেরা শিক্ষার্থী" block used to be.
+ */
+
+$dept_labels = array(
+    'dakhil' => 'দাখিল',
+    'alim'   => 'আলিম',
+    'fazil'  => 'ফাযিল',
+    'kamil'  => 'কামিল',
+);
+
+$students = new WP_Query( array(
+    'post_type'      => 'student',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+) );
+?>
+
+<div class="my-5 reveal" id="best">
+    <div class="section-title">
+        <h3><?php echo esc_html( get_theme_mod( 'rs_student_title', 'এ বছরের সেরা শিক্ষার্থী' ) ); ?></h3>
+        <p><?php echo esc_html( get_theme_mod( 'rs_student_subtitle', 'বিভাগ অনুযায়ী ফিল্টার করুন, বিস্তারিত দেখতে ছবিতে ক্লিক করুন' ) ); ?></p>
+    </div>
+
+    <div class="text-center gallery-filter mb-4" id="studentFilter">
+        <button class="active" data-dept="all"><?php esc_html_e( 'সকল', 'rs-madrasha' ); ?></button>
+        <?php foreach ( $dept_labels as $slug => $label ) : ?>
+            <button data-dept="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $label ); ?></button>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="row g-3" id="studentGrid">
+
+        <?php if ( $students->have_posts() ) : ?>
+
+            <?php while ( $students->have_posts() ) : $students->the_post();
+
+                $dept   = get_post_meta( get_the_ID(), '_student_dept', true );
+                $result = get_post_meta( get_the_ID(), '_student_result', true );
+                $roll   = get_post_meta( get_the_ID(), '_student_roll', true );
+                $name   = get_the_title();
+                $dept_label = isset( $dept_labels[ $dept ] ) ? $dept_labels[ $dept ] : '';
+
+                $img_url = has_post_thumbnail()
+                    ? get_the_post_thumbnail_url( get_the_ID(), 'medium_large' )
+                    : '';
+
+                $info = array(
+                    'name' => $name,
+                    'dept' => $dept_label . ' বিভাগ',
+                    'res'  => $result,
+                    'roll' => $roll,
+                    'img'  => $img_url,
+                );
+            ?>
+
+            <div class="col-6 col-md-3 student-col">
+                <div class="student-card"
+                     data-dept="<?php echo esc_attr( $dept ); ?>"
+                     data-bs-toggle="modal"
+                     data-bs-target="#stuModal"
+                     data-info='<?php echo esc_attr( wp_json_encode( $info ) ); ?>'>
+
+                    <?php if ( $img_url ) : ?>
+                        <img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $name ); ?>">
+                    <?php endif; ?>
+
+                    <?php if ( $result ) : ?>
+                        <div class="student-badge"><?php echo esc_html( $result ); ?></div>
+                    <?php endif; ?>
+
+                    <div class="cap"><?php echo esc_html( $name . ' — ' . $dept_label ); ?></div>
+                </div>
             </div>
-          </div>
-          <div class="col-6 col-md-3 student-col">
-            <div class="student-card" data-dept="alim" data-bs-toggle="modal" data-bs-target="#stuModal"
-                 data-info='{"name":"রুকাইয়া সুলতানা","dept":"আলিম বিভাগ","res":"জিপিএ ৫.০০","roll":"রোল: ০৩","img":"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=400"}'>
-              <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=400" alt="">
-              <div class="student-badge">জিপিএ ৫.০০</div>
-              <div class="cap">আলিম — রুকাইয়া সুলতানা</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3 student-col">
-            <div class="student-card" data-dept="fazil" data-bs-toggle="modal" data-bs-target="#stuModal"
-                 data-info='{"name":"সুমাইয়া আক্তার","dept":"ফাযিল বিভাগ","res":"১ম শ্রেণি, ১ম স্থান","roll":"রোল: ০৫","img":"https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400"}'>
-              <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400" alt="">
-              <div class="student-badge">১ম স্থান</div>
-              <div class="cap">ফাযিল — সুমাইয়া আক্তার</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3 student-col">
-            <div class="student-card" data-dept="kamil" data-bs-toggle="modal" data-bs-target="#stuModal"
-                 data-info='{"name":"নুসরাত জাহান মিম","dept":"কামিল বিভাগ","res":"১ম শ্রেণি, ১ম স্থান","roll":"রোল: ০২","img":"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400"}'>
-              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400" alt="">
-              <div class="student-badge">১ম স্থান</div>
-              <div class="cap">কামিল — নুসরাত জাহান মিম</div>
-            </div>
-          </div>
-        </div>
-      </div>
+
+            <?php endwhile; wp_reset_postdata(); ?>
+
+        <?php else : ?>
+
+            <p class="text-center w-100"><?php esc_html_e( 'কোনো শিক্ষার্থী পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+        <?php endif; ?>
+
+    </div>
+</div>
 
       <!-- student detail modal -->
       <div class="modal fade" id="stuModal" tabindex="-1">
@@ -188,24 +308,68 @@ get_header(); ?>
         </div>
       </div>
 
-      <div class="reveal">
-        <h4 class="font-display mb-3" style="color:var(--navy)">প্রতিষ্ঠার সংক্ষিপ্ত ইতিহাস</h4>
+    <?php
+/**
+ * Frontend Output — Madrasha History Accordion
+ * Drop this where the static accordion block used to be.
+ * Order controlled via "Page Attributes -> Order" (menu_order) on each post.
+ */
+
+$history_items = new WP_Query( array(
+    'post_type'      => 'madrasha_history',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+) );
+?>
+
+<div class="reveal">
+    <h4 class="font-display mb-3" style="color:var(--navy)"><?php esc_html_e( 'প্রতিষ্ঠার সংক্ষিপ্ত ইতিহাস', 'rs-madrasha' ); ?></h4>
+
+    <?php if ( $history_items->have_posts() ) : ?>
+
         <div class="accordion" id="histAcc">
-          <div class="accordion-item">
-            <h2 class="accordion-header"><button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#a1">১৯৪৬ — সূচনা</button></h2>
-            <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#histAcc"><div class="accordion-body">স্থানীয় মাহফিলকে কেন্দ্র করে অঞ্চলে দ্বীনি শিক্ষা প্রতিষ্ঠার আকাঙ্ক্ষা জন্ম নেয়।</div></div>
-          </div>
-          <div class="accordion-item">
-            <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a2">১৯৯০ — একাডেমিক যাত্রা শুরু</button></h2>
-            <div id="a2" class="accordion-collapse collapse" data-bs-parent="#histAcc"><div class="accordion-body">ইবতেদায়ী স্তরে শিক্ষার্থী নিয়ে মাদরাসার আনুষ্ঠানিক কার্যক্রম শুরু হয়।</div></div>
-          </div>
-          <div class="accordion-item">
-            <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a3">২০০৪–২০১৮ — কামিল স্তরে উন্নীতকরণ</button></h2>
-            <div id="a3" class="accordion-collapse collapse" data-bs-parent="#histAcc"><div class="accordion-body">ধাপে ধাপে দাখিল থেকে কামিল পর্যন্ত এবং একাধিক অনার্স-মাস্টার্স বিভাগ চালু করা হয়।</div></div>
-          </div>
+
+            <?php
+            $i = 0;
+            while ( $history_items->have_posts() ) : $history_items->the_post();
+                $i++;
+                $item_id   = 'a' . $i;
+                $is_first  = ( 1 === $i );
+            ?>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button<?php echo $is_first ? '' : ' collapsed'; ?>"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#<?php echo esc_attr( $item_id ); ?>">
+                        <?php the_title(); ?>
+                    </button>
+                </h2>
+                <div id="<?php echo esc_attr( $item_id ); ?>"
+                     class="accordion-collapse collapse<?php echo $is_first ? ' show' : ''; ?>"
+                     data-bs-parent="#histAcc">
+                    <div class="accordion-body">
+                        <?php the_content(); ?>
+                    </div>
+                </div>
+            </div>
+
+            <?php endwhile; wp_reset_postdata(); ?>
+
         </div>
-        <a href="about.html" class="btn btn-sm mt-3" style="background:var(--navy);color:#fff;">বিস্তারিত জানুন »</a>
-      </div>
+
+    <?php else : ?>
+
+        <p class="text-secondary"><?php esc_html_e( 'কোনো ইতিহাস যোগ করা হয়নি।', 'rs-madrasha' ); ?></p>
+
+    <?php endif; ?>
+
+    <a href="<?php echo esc_url( get_permalink( get_page_by_path( 'about' ) ) ); ?>"
+       class="btn btn-sm mt-3" style="background:var(--navy);color:#fff;">
+        <?php esc_html_e( 'বিস্তারিত জানুন »', 'rs-madrasha' ); ?>
+    </a>
+</div>
 
     </div>
 
@@ -213,43 +377,211 @@ get_header(); ?>
     <div class="col-lg-4">
 
       <div class="side-card text-center reveal">
-        <div class="side-card-body">
-          <img class="principal-photo mb-2" src="assets/img/principal.png" alt="অধ্যক্ষ">
-          <div style="color:var(--rose);font-weight:700;">প্রতিষ্ঠাতা অধ্যক্ষ</div>
-          <div class="font-display fw-bold" style="color:var(--navy)">মাওলানা মোহাম্মদ আমির হোসেন তালুকদার</div>
-          <small class="text-secondary d-block mb-2">কামিল (হাদিস, তাফসীর) ১ম শ্রেণি; দাওরায়ে হাদিস-১ম শ্রেণি; এম.এ, বি.এড-১ম শ্রেণি</small>
-          <a href="about.html#principal-speech" class="btn btn-sm w-100" style="background:var(--green);color:#fff;">অধ্যক্ষের বাণী পড়ুন »</a>
-        </div>
+      <?php
+/**
+ * Frontend Output — Principal Card
+ * Drop this where the static principal block used to be.
+ */
+
+$rs_photo_id = get_theme_mod( 'rs_principal_photo' );
+?>
+<div class="side-card-body">
+
+    <?php if ( $rs_photo_id ) :
+        echo wp_get_attachment_image( $rs_photo_id, 'medium', false, array(
+            'class' => 'principal-photo mb-2',
+            'alt'   => esc_attr( get_theme_mod( 'rs_principal_name', 'অধ্যক্ষ' ) ),
+        ) );
+    else : ?>
+        <img class="principal-photo mb-2"
+             src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/principal.png' ); ?>"
+             alt="<?php esc_attr_e( 'অধ্যক্ষ', 'rs-madrasha' ); ?>">
+    <?php endif; ?>
+
+    <div style="color:var(--rose);font-weight:700;">
+        <?php echo esc_html( get_theme_mod( 'rs_principal_badge', 'প্রতিষ্ঠাতা অধ্যক্ষ' ) ); ?>
+    </div>
+
+    <div class="font-display fw-bold" style="color:var(--navy)">
+        <?php echo esc_html( get_theme_mod( 'rs_principal_name', 'মাওলানা মোহাম্মদ আমির হোসেন তালুকদার' ) ); ?>
+    </div>
+
+    <small class="text-secondary d-block mb-2">
+        <?php echo esc_html( get_theme_mod( 'rs_principal_qualification', 'কামিল (হাদিস, তাফসীর) ১ম শ্রেণি; দাওরায়ে হাদিস-১ম শ্রেণি; এম.এ, বি.এড-১ম শ্রেণি' ) ); ?>
+    </small>
+
+    <a href="<?php echo esc_url( get_theme_mod( 'rs_principal_btn_url', '#principal-speech' ) ); ?>"
+       class="btn btn-sm w-100" style="background:var(--green);color:#fff;">
+        <?php echo esc_html( get_theme_mod( 'rs_principal_btn_text', 'অধ্যক্ষের বাণী পড়ুন »' ) ); ?>
+    </a>
+
+</div>
+
       </div>
 
-      <div class="side-card reveal" id="notice">
-        <div class="side-card-head">নোটিশ বোর্ড</div>
-        <div class="side-card-body">
-          <div class="notice-grid" id="noticeGrid">
-            <button class="active" data-t="dakhil">দাখিল</button>
-            <button data-t="alim">আলিম</button>
-            <button data-t="fazil">ফাযিল</button>
-            <button data-t="kamil">কামিল</button>
-          </div>
-          <div class="notice-result-list" id="noticeList"></div>
-          <a href="notice.html" class="btn btn-sm w-100 mt-2" style="background:var(--green);color:#fff;">সমস্ত নোটিশ দেখুন »</a>
-        </div>
-      </div>
+   <?php
+/**
+ * Frontend Output — Notice Board Widget
+ * Drop this where the static notice board block used to be.
+ */
 
-      <div class="side-card reveal" id="downloads">
-        <div class="side-card-head navy">ফরম ডাউনলোড</div>
-        <div class="side-card-body">
-          <div class="dl-list">
-            <a href="admission.html"><i class="bi bi-file-earmark-pdf"></i> ভর্তি নির্দেশিকা-২০২৬</a>
-            <a href="admission.html#dakhil"><i class="bi bi-file-earmark-pdf"></i> ভর্তি ফরম দাখিল</a>
-            <a href="admission.html#alim"><i class="bi bi-file-earmark-pdf"></i> ভর্তি ফরম আলিম</a>
-            <a href="admission.html#fazil"><i class="bi bi-file-earmark-pdf"></i> ভর্তি ফরম ফাযিল (পাস)</a>
-            <a href="admission.html#kamil"><i class="bi bi-file-earmark-pdf"></i> ভর্তি ফরম কামিল</a>
-            <a href="result.html"><i class="bi bi-file-earmark-pdf"></i> সাম্প্রতিক ফলাফল</a>
-          </div>
-          <a href="admission.html" class="btn btn-sm w-100 mt-2" style="background:var(--orange);color:#1c1c1c;">সকল ভর্তি ফরম »</a>
+$dept_labels = array(
+    'dakhil' => 'দাখিল',
+    'alim'   => 'আলিম',
+    'fazil'  => 'ফাযিল',
+    'kamil'  => 'কামিল',
+);
+
+$notices = new WP_Query( array(
+    'post_type'      => 'notice',
+    'posts_per_page' => -1,
+    'orderby'        => 'date',
+    'order'          => 'DESC',
+) );
+
+// Helper: pick an icon class by file extension
+function rs_notice_file_icon( $url ) {
+    $ext = strtolower( pathinfo( $url, PATHINFO_EXTENSION ) );
+    switch ( $ext ) {
+        case 'pdf':
+            return 'bi bi-file-earmark-pdf-fill text-danger';
+        case 'doc':
+        case 'docx':
+            return 'bi bi-file-earmark-word-fill text-primary';
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+            return 'bi bi-file-earmark-image-fill text-success';
+        default:
+            return 'bi bi-file-earmark-fill text-secondary';
+    }
+}
+?>
+
+<div class="side-card reveal" id="notice">
+    <div class="side-card-head"><?php esc_html_e( 'নোটিশ বোর্ড', 'rs-madrasha' ); ?></div>
+    <div class="side-card-body">
+
+        <div class="notice-grid" id="noticeGrid">
+            <?php $first = true; foreach ( $dept_labels as $slug => $label ) : ?>
+                <button class="<?php echo $first ? 'active' : ''; ?>" data-t="<?php echo esc_attr( $slug ); ?>">
+                    <?php echo esc_html( $label ); ?>
+                </button>
+            <?php $first = false; endforeach; ?>
         </div>
-      </div>
+
+        <div class="notice-result-list" id="noticeList">
+
+            <?php if ( $notices->have_posts() ) : ?>
+
+                <?php while ( $notices->have_posts() ) : $notices->the_post();
+
+                    $dept    = get_post_meta( get_the_ID(), '_notice_dept', true );
+                    $file_id = get_post_meta( get_the_ID(), '_notice_file', true );
+                    $file_url = $file_id ? wp_get_attachment_url( $file_id ) : '';
+                ?>
+
+                    <a href="<?php echo $file_url ? esc_url( $file_url ) : '#'; ?>"
+                       target="_blank" rel="noopener"
+                       class="notice-item"
+                       data-t="<?php echo esc_attr( $dept ); ?>">
+                        <i class="<?php echo esc_attr( rs_notice_file_icon( $file_url ) ); ?>"></i>
+                        <span class="notice-title"><?php echo esc_html( get_the_title() ); ?></span>
+                        <span class="notice-date"><?php echo esc_html( get_the_date( 'd M, Y' ) ); ?></span>
+                    </a>
+
+                <?php endwhile; wp_reset_postdata(); ?>
+
+            <?php else : ?>
+
+                <p class="text-secondary small mb-0"><?php esc_html_e( 'কোনো নোটিশ পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+            <?php endif; ?>
+
+        </div>
+
+        <a href="<?php echo esc_url( get_post_type_archive_link( 'notice' ) ); ?>"
+           class="btn btn-sm w-100 mt-2" style="background:var(--green);color:#fff;">
+            <?php esc_html_e( 'সমস্ত নোটিশ দেখুন »', 'rs-madrasha' ); ?>
+        </a>
+
+    </div>
+</div>
+
+      <?php
+/**
+ * Frontend Output — Download Forms Widget
+ * Drop this where the static download list block used to be.
+ */
+
+$downloads = new WP_Query( array(
+    'post_type'      => 'download_form',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+) );
+
+if ( ! function_exists( 'rs_notice_file_icon' ) ) {
+    // Reuse the same icon helper if it's not already defined elsewhere (e.g. by the Notice template)
+    function rs_notice_file_icon( $url ) {
+        $ext = strtolower( pathinfo( $url, PATHINFO_EXTENSION ) );
+        switch ( $ext ) {
+            case 'pdf':
+                return 'bi bi-file-earmark-pdf';
+            case 'doc':
+            case 'docx':
+                return 'bi bi-file-earmark-word';
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                return 'bi bi-file-earmark-image';
+            default:
+                return 'bi bi-file-earmark';
+        }
+    }
+}
+?>
+
+<div class="side-card reveal" id="downloads">
+    <div class="side-card-head navy"><?php esc_html_e( 'ফরম ডাউনলোড', 'rs-madrasha' ); ?></div>
+    <div class="side-card-body">
+
+        <div class="dl-list">
+
+            <?php if ( $downloads->have_posts() ) : ?>
+
+                <?php while ( $downloads->have_posts() ) : $downloads->the_post();
+
+                    $file_id  = get_post_meta( get_the_ID(), '_download_file', true );
+                    $file_url = $file_id ? wp_get_attachment_url( $file_id ) : '';
+
+                    if ( ! $file_url ) {
+                        continue; // Skip items with no file attached
+                    }
+                ?>
+
+                    <a href="<?php echo esc_url( $file_url ); ?>" target="_blank" rel="noopener">
+                        <i class="<?php echo esc_attr( rs_notice_file_icon( $file_url ) ); ?>"></i>
+                        <?php echo esc_html( get_the_title() ); ?>
+                    </a>
+
+                <?php endwhile; wp_reset_postdata(); ?>
+
+            <?php else : ?>
+
+                <p class="text-secondary small mb-0"><?php esc_html_e( 'কোনো ফরম পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+            <?php endif; ?>
+
+        </div>
+
+        <a href="<?php echo esc_url( home_url( '/admission' ) ); ?>"
+           class="btn btn-sm w-100 mt-2" style="background:var(--orange);color:#1c1c1c;">
+            <?php esc_html_e( 'সকল ভর্তি ফরম »', 'rs-madrasha' ); ?>
+        </a>
+
+    </div>
+</div>
 
       <div class="side-card reveal">
         <div class="cal-head">
@@ -266,17 +598,62 @@ get_header(); ?>
       </div>
 
       <!-- NEW: quick gallery preview -->
-      <div class="side-card reveal">
-        <div class="side-card-head navy">সাম্প্রতিক ছবি</div>
-        <div class="side-card-body">
-          <div class="row g-2">
-            <div class="col-4"><img src="https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?q=80&w=200" class="w-100 rounded" style="height:60px;object-fit:cover;"></div>
-            <div class="col-4"><img src="https://images.unsplash.com/photo-1519452575417-564c1401ecc0?q=80&w=200" class="w-100 rounded" style="height:60px;object-fit:cover;"></div>
-            <div class="col-4"><img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=200" class="w-100 rounded" style="height:60px;object-fit:cover;"></div>
-          </div>
-          <a href="gallery.html" class="btn btn-sm w-100 mt-2" style="background:var(--orange);color:#1c1c1c;">সম্পূর্ণ গ্যালারি »</a>
-        </div>
-      </div>
+     <?php
+/**
+ * Frontend Output — Recent Photos Widget
+ * Drop this where the static 3-photo block used to be.
+ */
+
+$gallery_photos = new WP_Query( array(
+    'post_type'      => 'gallery',
+    'posts_per_page' => 3,
+    'orderby'        => 'date',
+    'order'          => 'DESC',
+    'meta_query'     => array(
+        array(
+            'key'     => '_thumbnail_id',
+            'compare' => 'EXISTS',
+        ),
+    ),
+) );
+?>
+
+<div class="side-card reveal">
+    <div class="side-card-head navy"><?php esc_html_e( 'সাম্প্রতিক ছবি', 'rs-madrasha' ); ?></div>
+    <div class="side-card-body">
+
+        <?php if ( $gallery_photos->have_posts() ) : ?>
+
+            <div class="row g-2">
+                <?php while ( $gallery_photos->have_posts() ) : $gallery_photos->the_post(); ?>
+                    <div class="col-4">
+                        <a href="<?php echo esc_url( get_the_post_thumbnail_url( get_the_ID(), 'full' ) ); ?>"
+                           target="_blank" rel="noopener">
+                            <?php
+                            the_post_thumbnail( 'thumbnail', array(
+                                'class' => 'w-100 rounded',
+                                'style' => 'height:60px;object-fit:cover;',
+                                'alt'   => esc_attr( get_the_title() ),
+                            ) );
+                            ?>
+                        </a>
+                    </div>
+                <?php endwhile; wp_reset_postdata(); ?>
+            </div>
+
+        <?php else : ?>
+
+            <p class="text-secondary small mb-0"><?php esc_html_e( 'কোনো ছবি পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+        <?php endif; ?>
+
+        <a href="<?php echo esc_url( get_post_type_archive_link( 'gallery' ) ); ?>"
+           class="btn btn-sm w-100 mt-2" style="background:var(--orange);color:#1c1c1c;">
+            <?php esc_html_e( 'সম্পূর্ণ গ্যালারি »', 'rs-madrasha' ); ?>
+        </a>
+
+    </div>
+</div>
 
     </div>
   </div>

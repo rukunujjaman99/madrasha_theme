@@ -4,15 +4,7 @@ get_header(); ?>
 
 <style> 
 
-  .teacher-image{
-    width:80px;
-    height:80px;
-   
-    object-fit:cover;
-    margin:15px auto 10px;
-    display:block;
-    border:3px solid #eee;
-}
+
 </style>
 
 
@@ -43,14 +35,14 @@ get_header(); ?>
             ORDER BY meta_value ASC
         ");
 
-        if($departments){
+        if ( $departments ) {
 
-            foreach($departments as $dept){
+            foreach ( $departments as $dept ) {
 
-                $slug = sanitize_title($dept->meta_value);
+                $slug = sanitize_title( $dept->meta_value );
 
-                echo '<option value="'.esc_attr($slug).'">'
-                        .esc_html($dept->meta_value).
+                echo '<option value="' . esc_attr( $slug ) . '">'
+                        . esc_html( $dept->meta_value ) .
                      '</option>';
 
             }
@@ -70,86 +62,93 @@ get_header(); ?>
 
 </div>
 
-  <div class="row g-4" id="teacherGrid">
 
- <div class="row g-4" id="teacherGrid">
+
+<div class="row g-4" id="teacherGrid">
 
 <?php
 
-$teachers = new WP_Query(array(
+$teachers = new WP_Query( array(
     'post_type'      => 'teacher',
     'posts_per_page' => -1,
     'orderby'        => 'menu_order',
-    'order'          => 'ASC'
-));
+    'order'          => 'ASC',
+) );
 
-if($teachers->have_posts()) :
+if ( $teachers->have_posts() ) :
 
-while($teachers->have_posts()) : $teachers->the_post();
-$name = get_the_title();
-$designation = get_post_meta(get_the_ID(),'_designation',true);
-$department  = get_post_meta(get_the_ID(),'_department',true);
-$phone       = get_post_meta(get_the_ID(),'_phone',true);
+    while ( $teachers->have_posts() ) : $teachers->the_post();
 
-$dept_slug = sanitize_title($department);
+        $name        = get_the_title();
+        $designation = get_post_meta( get_the_ID(), '_designation', true );
+        $department  = get_post_meta( get_the_ID(), '_department', true );
+        $phone       = get_post_meta( get_the_ID(), '_phone', true );
 
-?>
+        $dept_slug = sanitize_title( $department );
 
-<div class="col-6 col-md-4 col-lg-3 teacher-col reveal">
+        ?>
 
-    <div
-        class="teacher-card"
-        data-name="<?php echo esc_attr(get_the_title()); ?>"
-        data-dept="<?php echo esc_attr($dept_slug); ?>">
+        <div class="col-6 col-md-4 col-lg-3 teacher-col reveal">
 
-        <?php if(has_post_thumbnail()) : ?>
+            <div
+                class="teacher-card"
+                data-name="<?php echo esc_attr( mb_strtolower( $name ) ); ?>"
+                data-dept="<?php echo esc_attr( $dept_slug ); ?>">
 
-            <?php the_post_thumbnail('medium',array(
-                'class'=>'teacher-image'
-            )); ?>
+                <?php if ( has_post_thumbnail() ) : ?>
 
-        <?php else : ?>
+                    <?php the_post_thumbnail( 'medium', array(
+                        'class' => 'teacher-image',
+                    ) ); ?>
 
-            <div class="avatar-initial">
-                <?php echo mb_substr(get_the_title(),0,1); ?>
+                <?php else : ?>
+
+                    <div class="avatar-initial">
+                        <?php echo esc_html( mb_substr( $name, 0, 1 ) ); ?>
+                    </div>
+
+                <?php endif; ?>
+
+                <div class="info">
+
+                    <h6><?php echo esc_html( $name ); ?></h6>
+
+                    <small class="text-secondary">
+                        <?php echo esc_html( $designation ); ?>
+                    </small>
+
+                    <br>
+
+                    <span class="dept-tag">
+                        <?php echo esc_html( $department ); ?>
+                    </span>
+
+                    <?php if ( $phone ) : ?>
+
+                        <div class="phone-line">
+                            <i class="bi bi-telephone-fill"></i>
+                            <?php echo esc_html( $phone ); ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                </div>
+
             </div>
-
-        <?php endif; ?>
-
-        <div class="info">
-
-            <h6><?php the_title(); ?></h6>
-
-            <small class="text-secondary">
-                <?php echo esc_html($designation); ?>
-            </small>
-
-            <br>
-
-            <span class="dept-tag">
-                <?php echo esc_html($department); ?>
-            </span>
-
-            <?php if($phone): ?>
-
-            <div class="phone-line">
-                <i class="bi bi-telephone-fill"></i>
-                <?php echo esc_html($phone); ?>
-            </div>
-
-            <?php endif; ?>
 
         </div>
 
-    </div>
+        <?php
 
-</div>
+    endwhile;
 
-<?php
+    wp_reset_postdata();
 
-endwhile;
+else :
 
-wp_reset_postdata();
+    ?>
+    <p class="text-center w-100"><?php esc_html_e( 'কোনো শিক্ষক পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+    <?php
 
 endif;
 
