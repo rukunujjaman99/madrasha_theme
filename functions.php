@@ -9,6 +9,10 @@ require_once get_template_directory() . '/inc/feature-cpt.php';
 require_once get_template_directory() . '/inc/student-cpt.php';
 require_once get_template_directory() . '/inc/history-cpt.php';
 require_once get_template_directory() . '/inc/notice-cpt.php';
+require_once get_template_directory() . '/inc/staff-cpt.php';
+require_once get_template_directory() . '/inc/committee-cpt.php';
+require_once get_template_directory() . '/inc/contact-cpt.php';
+
 require_once get_template_directory() . '/inc/download-form-cpt.php';
 require_once get_template_directory() . '/inc/image-gallery-cpt.php';
 
@@ -90,6 +94,17 @@ function madarsa_enqueue_assets() {
             filemtime(get_template_directory() . '/assets/js/notice.js'),
             true
         );
+
+           wp_enqueue_script(
+            'contact-form',
+            get_template_directory_uri() . '/assets/js/contact.js',
+            array('bootstrap'),
+            filemtime(get_template_directory() . '/assets/js/contact.js'),
+            true
+        );
+
+
+
         
 
 

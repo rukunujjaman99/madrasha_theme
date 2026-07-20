@@ -7,14 +7,69 @@ get_header(); ?>
 <!-- header end -->
 
 <!-- TICKER -->
+<?php
+/**
+ * Notice Ticker — Dynamic
+ * Pulls the latest notices and feeds them into the scrolling ticker.
+ * The item list is rendered twice back-to-back (a standard marquee trick)
+ * so a CSS animation can loop seamlessly without a visible jump/reset.
+ */
+
+$ticker_notices = new WP_Query( array(
+    'post_type'      => 'notice',
+    'posts_per_page' => 8,
+    'orderby'        => 'date',
+    'order'          => 'DESC',
+) );
+
+$ticker_items = array();
+
+if ( $ticker_notices->have_posts() ) {
+    while ( $ticker_notices->have_posts() ) {
+        $ticker_notices->the_post();
+
+        $file_id  = get_post_meta( get_the_ID(), '_notice_file', true );
+        $file_url = $file_id ? wp_get_attachment_url( $file_id ) : '';
+
+        $ticker_items[] = array(
+            'title' => get_the_title(),
+            'url'   => $file_url ? $file_url : get_permalink(),
+        );
+    }
+    wp_reset_postdata();
+}
+?>
+
 <div class="ticker-wrap d-flex align-items-center">
-  <span class="ticker-label">নোটিশঃ</span>
-  <span class="ticker-track">
-    <span>২০২৬ সালের খামেস থেকে আসের পর্যন্ত সেশন ফি পরিশোধের বিজ্ঞপ্তি</span>
-    <span>২০২৬ সালের আউয়াল থেকে রাবে পর্যন্ত সেশন ফি পরিশোধের বিজ্ঞপ্তি</span>
-    <span>২০২৬ সালের ভর্তি বিজ্ঞপ্তি</span>
-    <span>মুহইউসসুন্নাহ বৃত্তি পরীক্ষা</span>
-  </span>
+    <span class="ticker-label"><?php esc_html_e( 'নোটিশঃ', 'rs-madrasha' ); ?></span>
+
+    <?php if ( ! empty( $ticker_items ) ) : ?>
+
+        <span class="ticker-track">
+            <?php
+            // Render the list TWICE in a row so the marquee loop has no visible gap/jump.
+            for ( $repeat = 0; $repeat < 2; $repeat++ ) :
+                foreach ( $ticker_items as $item ) :
+            ?>
+                <span>
+                    <a href="<?php echo esc_url( $item['url'] ); ?>" target="_blank" rel="noopener"
+                       style="color:inherit;text-decoration:none;">
+                        <?php echo esc_html( $item['title'] ); ?>
+                    </a>
+                </span>
+            <?php
+                endforeach;
+            endfor;
+            ?>
+        </span>
+
+    <?php else : ?>
+
+        <span class="ticker-track">
+            <span><?php esc_html_e( 'কোনো নতুন নোটিশ নেই।', 'rs-madrasha' ); ?></span>
+        </span>
+
+    <?php endif; ?>
 </div>
 
 <!-- MAIN -->

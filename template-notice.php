@@ -1,5 +1,5 @@
 <?php 
-// Template Name: Notice Board
+// Template Name: Notice Board Page
 get_header();
 ?>
 
