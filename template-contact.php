@@ -63,18 +63,45 @@ $rs_email2 = get_theme_mod( 'rs_contact_email2', 'kgfmm.edu.bd' );
 
 </div>
 
+
   <div class="row g-5">
     <div class="col-lg-7 reveal">
       <div class="section-title text-start"><h3 style="font-size:1.4rem;">মেসেজ পাঠান</h3></div>
 
-      <div id="contactSuccess" class="alert alert-success d-none">
-  <i class="bi bi-check-circle-fill"></i> <span id="contactSuccessText">আপনার বার্তা সফলভাবে পাঠানো হয়েছে। ধন্যবাদ!</span>
-</div>
-<div id="contactError" class="alert alert-danger d-none">
-  <i class="bi bi-exclamation-triangle-fill"></i> <span id="contactErrorText"></span>
+   <?php
+/**
+ * Frontend Output — Contact Form (admin-post.php based, no JS required)
+ * Drop this where the form used to be.
+ */
+
+$status = isset( $_GET['contact_status'] ) ? sanitize_key( $_GET['contact_status'] ) : '';
+?>
+
+<div id="contactSuccess" class="alert alert-success <?php echo ( 'success' === $status ) ? '' : 'd-none'; ?>">
+  <i class="bi bi-check-circle-fill"></i>
+  <span id="contactSuccessText"><?php esc_html_e( 'আপনার বার্তা সফলভাবে পাঠানো হয়েছে। ধন্যবাদ!', 'rs-madrasha' ); ?></span>
 </div>
 
-<form id="contactForm" class="row g-3 needs-validation" novalidate method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+<div id="contactError" class="alert alert-danger <?php echo in_array( $status, array( 'invalid', 'dberror', 'error' ), true ) ? '' : 'd-none'; ?>">
+  <i class="bi bi-exclamation-triangle-fill"></i>
+  <span id="contactErrorText">
+    <?php
+    if ( 'invalid' === $status ) {
+        esc_html_e( 'অনুগ্রহ করে সকল আবশ্যক তথ্য সঠিকভাবে পূরণ করুন।', 'rs-madrasha' );
+    } elseif ( 'dberror' === $status ) {
+        esc_html_e( 'দুঃখিত, ডাটাবেসে সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।', 'rs-madrasha' );
+    } elseif ( 'error' === $status ) {
+        esc_html_e( 'দুঃখিত, একটি ত্রুটি হয়েছে। আবার চেষ্টা করুন।', 'rs-madrasha' );
+    }
+    ?>
+  </span>
+</div>
+
+<form id="contactForm" class="row g-3 needs-validation" novalidate method="post"
+      action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+
+  <input type="hidden" name="action" value="rs_contact_form_submit">
+  <?php wp_nonce_field( 'rs_contact_form_action', 'rs_contact_nonce' ); ?>
 
   <div class="col-md-6">
     <label class="form-label small fw-bold">নাম *</label>
@@ -117,6 +144,24 @@ $rs_email2 = get_theme_mod( 'rs_contact_email2', 'kgfmm.edu.bd' );
   </div>
 
 </form>
+
+<script>
+// Bootstrap client-side validation only (prevents empty/invalid submits from
+// leaving the page at all) — the actual save happens via normal form POST,
+// no fetch/AJAX involved, so this script failing to load changes nothing.
+(function () {
+  var form = document.getElementById('contactForm');
+  if (!form) return;
+
+  form.addEventListener('submit', function (e) {
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    form.classList.add('was-validated');
+  });
+})();
+</script>
 
     </div>
 

@@ -1432,4 +1432,114 @@ add_action( 'customize_register', 'rs_contact_page_customizer' );
 
 
 
+
+/**
+ * ==========================================================
+ * ADMISSION PAGE — Customizer Settings
+ * Covers three fixed blocks:
+ *   1) General Instructions Box
+ *   2) Admission Schedule (4 fixed rows)
+ *   3) Admission Office Contact
+ * ==========================================================
+ */
+
+function rs_admission_page_customizer( $wp_customize ) {
+
+    $wp_customize->add_section( 'rs_admission_page', array(
+        'title'    => __( 'Admission Page', 'rs-madrasha' ),
+        'priority' => 102,
+    ) );
+
+    /*==============================================
+        BLOCK 1 — Instructions Box
+    ==============================================*/
+    $wp_customize->add_setting( 'rs_adm_instructions_heading', array(
+        'default'           => 'ভর্তি সংক্রান্ত সাধারণ নির্দেশনা',
+        'sanitize_callback' => 'sanitize_text_field',
+    ) );
+    $wp_customize->add_control( 'rs_adm_instructions_heading', array(
+        'label'   => __( 'Instructions Heading', 'rs-madrasha' ),
+        'section' => 'rs_admission_page',
+        'type'    => 'text',
+    ) );
+
+    $wp_customize->add_setting( 'rs_adm_instructions_text', array(
+        'default'           => 'নিচের তালিকা থেকে আপনার প্রয়োজনীয় স্তরের ভর্তি ফরম ডাউনলোড করুন। পূরণকৃত ফরম প্রয়োজনীয় কাগজপত্রসহ নির্ধারিত সময়ের মধ্যে অফিসে জমা দিতে হবে।',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ) );
+    $wp_customize->add_control( 'rs_adm_instructions_text', array(
+        'label'   => __( 'Instructions Text', 'rs-madrasha' ),
+        'section' => 'rs_admission_page',
+        'type'    => 'textarea',
+    ) );
+
+    /*==============================================
+        BLOCK 2 — Admission Schedule (fixed 4 rows)
+    ==============================================*/
+    $schedule_defaults = array(
+        1 => array( 'label' => 'দাখিল', 'value' => '১-৩১ জুলাই' ),
+        2 => array( 'label' => 'আলিম',  'value' => '১-২০ জুলাই' ),
+        3 => array( 'label' => 'ফাযিল', 'value' => '১-১৫ আগস্ট' ),
+        4 => array( 'label' => 'কামিল', 'value' => '১-১০ আগস্ট' ),
+    );
+
+    $wp_customize->add_setting( 'rs_adm_schedule_heading', array(
+        'default'           => 'ভর্তি সময়সূচি',
+        'sanitize_callback' => 'sanitize_text_field',
+    ) );
+    $wp_customize->add_control( 'rs_adm_schedule_heading', array(
+        'label'   => __( 'Schedule Widget Heading', 'rs-madrasha' ),
+        'section' => 'rs_admission_page',
+        'type'    => 'text',
+    ) );
+
+    foreach ( $schedule_defaults as $i => $row ) {
+        $wp_customize->add_setting( "rs_adm_schedule{$i}_label", array(
+            'default'           => $row['label'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        $wp_customize->add_control( "rs_adm_schedule{$i}_label", array(
+            'label'   => sprintf( __( 'Schedule Row %d — Label', 'rs-madrasha' ), $i ),
+            'section' => 'rs_admission_page',
+            'type'    => 'text',
+        ) );
+
+        $wp_customize->add_setting( "rs_adm_schedule{$i}_value", array(
+            'default'           => $row['value'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        $wp_customize->add_control( "rs_adm_schedule{$i}_value", array(
+            'label'   => sprintf( __( 'Schedule Row %d — Date Range', 'rs-madrasha' ), $i ),
+            'section' => 'rs_admission_page',
+            'type'    => 'text',
+        ) );
+    }
+
+    /*==============================================
+        BLOCK 3 — Admission Office Contact
+    ==============================================*/
+    $wp_customize->add_setting( 'rs_adm_contact_phone', array(
+        'default'           => '০১৭১২-৪৫৭৬২০ (ভর্তি শাখা)',
+        'sanitize_callback' => 'sanitize_text_field',
+    ) );
+    $wp_customize->add_control( 'rs_adm_contact_phone', array(
+        'label'   => __( 'Admission Office Phone', 'rs-madrasha' ),
+        'section' => 'rs_admission_page',
+        'type'    => 'text',
+    ) );
+
+    $wp_customize->add_setting( 'rs_adm_contact_email', array(
+        'default'           => 'kawniagirls.fazil@gmail.com',
+        'sanitize_callback' => 'sanitize_text_field',
+    ) );
+    $wp_customize->add_control( 'rs_adm_contact_email', array(
+        'label'   => __( 'Admission Office Email', 'rs-madrasha' ),
+        'section' => 'rs_admission_page',
+        'type'    => 'text',
+    ) );
+}
+add_action( 'customize_register', 'rs_admission_page_customizer' );
+
+
+
 ?>

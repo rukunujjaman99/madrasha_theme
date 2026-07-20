@@ -1,16 +1,15 @@
 <?php
 /**
  * ==========================================================
- * CONTACT QUERY — Custom SQL Table Storage + Admin UI
- * Table: {$wpdb->prefix}rs_contact_queries
- * No CPT involved — pure custom table, queried directly via $wpdb.
+ * CONTACT QUERY — Full System (admin-post.php based, no AJAX)
+ * Replaces ALL earlier versions. Use ONLY this file.
  * ==========================================================
  */
 
 define( 'RS_CONTACT_DB_VERSION', '1.0' );
 
 /*--------------------------------------------------------
-    1) Create the custom table (runs automatically if missing)
+    1) Custom Table
 --------------------------------------------------------*/
 function rs_contact_queries_table_name() {
     global $wpdb;
@@ -39,20 +38,18 @@ function rs_create_contact_queries_table() {
 
     update_option( 'rs_contact_db_version', RS_CONTACT_DB_VERSION );
 }
-register_activation_hook( __FILE__, 'rs_create_contact_queries_table' ); // if this code lives in a plugin file
-add_action( 'after_switch_theme', 'rs_create_contact_queries_table' );    // if it lives in functions.php
+add_action( 'after_switch_theme', 'rs_create_contact_queries_table' );
 
-// Safety net: auto-create the table if it's ever missing (e.g. code added without a theme switch)
 function rs_maybe_create_contact_queries_table() {
     if ( get_option( 'rs_contact_db_version' ) !== RS_CONTACT_DB_VERSION ) {
         rs_create_contact_queries_table();
     }
 }
-add_action( 'admin_init', 'rs_maybe_create_contact_queries_table' );
+add_action( 'init', 'rs_maybe_create_contact_queries_table' ); // runs on EVERY request now, not just admin — guarantees it exists before any form submit
 
 
 /*--------------------------------------------------------
-    2) Custom Admin Menu
+    2) Admin Menu
 --------------------------------------------------------*/
 function rs_contact_query_admin_menu() {
     global $wpdb;
@@ -84,13 +81,12 @@ add_action( 'admin_menu', 'rs_contact_query_admin_menu' );
 
 
 /*--------------------------------------------------------
-    3) WP_List_Table — reads directly from the custom table
+    3) WP_List_Table
 --------------------------------------------------------*/
 function rs_load_contact_query_list_table() {
     if ( ! class_exists( 'WP_List_Table' ) ) {
         require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
     }
-
     if ( class_exists( 'RS_Contact_Query_List_Table' ) ) {
         return;
     }
@@ -98,11 +94,7 @@ function rs_load_contact_query_list_table() {
     class RS_Contact_Query_List_Table extends WP_List_Table {
 
         public function __construct() {
-            parent::__construct( array(
-                'singular' => 'contact_query',
-                'plural'   => 'contact_queries',
-                'ajax'     => false,
-            ) );
+            parent::__construct( array( 'singular' => 'contact_query', 'plural' => 'contact_queries', 'ajax' => false ) );
         }
 
         public function get_columns() {
@@ -121,17 +113,9 @@ function rs_load_contact_query_list_table() {
         }
 
         protected function column_name( $item ) {
-            $view_url = add_query_arg( array(
-                'page' => 'rs-contact-query-view',
-                'id'   => $item->id,
-            ), admin_url( 'admin.php' ) );
-
+            $view_url = add_query_arg( array( 'page' => 'rs-contact-query-view', 'id' => $item->id ), admin_url( 'admin.php' ) );
             $delete_url = wp_nonce_url(
-                add_query_arg( array(
-                    'page'   => 'rs-contact-queries',
-                    'action' => 'delete',
-                    'id'     => $item->id,
-                ), admin_url( 'admin.php' ) ),
+                add_query_arg( array( 'page' => 'rs-contact-queries', 'action' => 'delete', 'id' => $item->id ), admin_url( 'admin.php' ) ),
                 'rs_delete_query_' . $item->id
             );
 
@@ -139,39 +123,25 @@ function rs_load_contact_query_list_table() {
                 'view'   => sprintf( '<a href="%s">%s</a>', esc_url( $view_url ), __( 'View', 'rs-madrasha' ) ),
                 'delete' => sprintf(
                     '<a href="%s" onclick="return confirm(\'%s\');" style="color:#b32d2e;">%s</a>',
-                    esc_url( $delete_url ),
-                    esc_js( __( 'Delete this query permanently?', 'rs-madrasha' ) ),
-                    __( 'Delete', 'rs-madrasha' )
+                    esc_url( $delete_url ), esc_js( __( 'Delete this query permanently?', 'rs-madrasha' ) ), __( 'Delete', 'rs-madrasha' )
                 ),
             );
 
-            return sprintf(
-                '<a href="%s"><strong>%s</strong></a>%s',
-                esc_url( $view_url ),
-                esc_html( $item->name ),
-                $this->row_actions( $actions )
-            );
+            return sprintf( '<a href="%s"><strong>%s</strong></a>%s', esc_url( $view_url ), esc_html( $item->name ), $this->row_actions( $actions ) );
         }
 
         protected function column_default( $item, $column_name ) {
             switch ( $column_name ) {
-                case 'phone':
-                    return esc_html( $item->phone ?: '—' );
-                case 'email':
-                    return esc_html( $item->email ?: '—' );
-                case 'subject':
-                    return esc_html( $item->subject ?: '—' );
-                case 'date':
-                    return esc_html( mysql2date( 'd M Y, h:i A', $item->created_at ) );
-                default:
-                    return '—';
+                case 'phone':   return esc_html( $item->phone ?: '—' );
+                case 'email':   return esc_html( $item->email ?: '—' );
+                case 'subject': return esc_html( $item->subject ?: '—' );
+                case 'date':    return esc_html( mysql2date( 'd M Y, h:i A', $item->created_at ) );
+                default:        return '—';
             }
         }
 
         public function get_bulk_actions() {
-            return array(
-                'bulk_delete' => __( 'Delete', 'rs-madrasha' ),
-            );
+            return array( 'bulk_delete' => __( 'Delete', 'rs-madrasha' ) );
         }
 
         public function prepare_items() {
@@ -183,26 +153,22 @@ function rs_load_contact_query_list_table() {
             $offset       = ( $current_page - 1 ) * $per_page;
             $search       = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 
-            $where = '';
+            $where  = '';
             $params = array();
 
             if ( $search ) {
-                $where = " WHERE name LIKE %s OR phone LIKE %s OR email LIKE %s OR subject LIKE %s ";
-                $like  = '%' . $wpdb->esc_like( $search ) . '%';
+                $where  = " WHERE name LIKE %s OR phone LIKE %s OR email LIKE %s OR subject LIKE %s ";
+                $like   = '%' . $wpdb->esc_like( $search ) . '%';
                 $params = array( $like, $like, $like, $like );
             }
 
-            // Total count
-            if ( $params ) {
-                $total_items = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table}{$where}", $params ) );
-            } else {
-                $total_items = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
-            }
+            $total_items = $params
+                ? (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table}{$where}", $params ) )
+                : (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 
-            // Page of results
-            $query = "SELECT * FROM {$table}{$where} ORDER BY created_at DESC LIMIT %d OFFSET %d";
+            $query        = "SELECT * FROM {$table}{$where} ORDER BY created_at DESC LIMIT %d OFFSET %d";
             $query_params = array_merge( $params, array( $per_page, $offset ) );
-            $this->items = $wpdb->get_results( $wpdb->prepare( $query, $query_params ) );
+            $this->items  = $wpdb->get_results( $wpdb->prepare( $query, $query_params ) );
 
             $this->_column_headers = array( $this->get_columns(), array(), array() );
 
@@ -222,7 +188,7 @@ add_action( 'admin_init', 'rs_load_contact_query_list_table' );
 
 
 /*--------------------------------------------------------
-    4) Render: List Page (Data Table)
+    4) List Page
 --------------------------------------------------------*/
 function rs_render_contact_query_list_page() {
     global $wpdb;
@@ -233,7 +199,6 @@ function rs_render_contact_query_list_page() {
 
     $table = rs_contact_queries_table_name();
 
-    // Single delete
     if ( isset( $_GET['action'], $_GET['id'] ) && 'delete' === $_GET['action'] ) {
         $id = absint( $_GET['id'] );
         check_admin_referer( 'rs_delete_query_' . $id );
@@ -241,7 +206,6 @@ function rs_render_contact_query_list_page() {
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'বার্তাটি মুছে ফেলা হয়েছে।', 'rs-madrasha' ) . '</p></div>';
     }
 
-    // Bulk delete
     if ( isset( $_POST['query_ids'] ) && isset( $_POST['action'] ) && 'bulk_delete' === $_POST['action'] ) {
         check_admin_referer( 'bulk-contact_queries' );
         foreach ( (array) $_POST['query_ids'] as $id ) {
@@ -263,10 +227,7 @@ function rs_render_contact_query_list_page() {
         </form>
 
         <form method="post">
-            <?php
-            wp_nonce_field( 'bulk-contact_queries' );
-            $list_table->display();
-            ?>
+            <?php wp_nonce_field( 'bulk-contact_queries' ); $list_table->display(); ?>
         </form>
     </div>
     <?php
@@ -274,7 +235,7 @@ function rs_render_contact_query_list_page() {
 
 
 /*--------------------------------------------------------
-    5) Render: Single View Page
+    5) Single View Page
 --------------------------------------------------------*/
 function rs_render_contact_query_single_page() {
     global $wpdb;
@@ -292,14 +253,9 @@ function rs_render_contact_query_single_page() {
         return;
     }
 
-    $back_url = admin_url( 'admin.php?page=rs-contact-queries' );
-
+    $back_url   = admin_url( 'admin.php?page=rs-contact-queries' );
     $delete_url = wp_nonce_url(
-        add_query_arg( array(
-            'page'   => 'rs-contact-queries',
-            'action' => 'delete',
-            'id'     => $row->id,
-        ), admin_url( 'admin.php' ) ),
+        add_query_arg( array( 'page' => 'rs-contact-queries', 'action' => 'delete', 'id' => $row->id ), admin_url( 'admin.php' ) ),
         'rs_delete_query_' . $row->id
     );
     ?>
@@ -318,40 +274,16 @@ function rs_render_contact_query_single_page() {
         </style>
 
         <div class="rs-query-detail">
-            <div class="row">
-                <div class="label"><?php esc_html_e( 'Name', 'rs-madrasha' ); ?></div>
-                <div class="value"><?php echo esc_html( $row->name ); ?></div>
-            </div>
-            <div class="row">
-                <div class="label"><?php esc_html_e( 'Submitted On', 'rs-madrasha' ); ?></div>
-                <div class="value"><?php echo esc_html( mysql2date( 'd F Y, h:i A', $row->created_at ) ); ?></div>
-            </div>
-            <div class="row">
-                <div class="label"><?php esc_html_e( 'Phone', 'rs-madrasha' ); ?></div>
-                <div class="value">
-                    <?php echo $row->phone ? '<a href="tel:' . esc_attr( $row->phone ) . '">' . esc_html( $row->phone ) . '</a>' : '—'; ?>
-                </div>
-            </div>
-            <div class="row">
-                <div class="label"><?php esc_html_e( 'Email', 'rs-madrasha' ); ?></div>
-                <div class="value">
-                    <?php echo $row->email ? '<a href="mailto:' . esc_attr( $row->email ) . '">' . esc_html( $row->email ) . '</a>' : '—'; ?>
-                </div>
-            </div>
-            <div class="row">
-                <div class="label"><?php esc_html_e( 'Subject', 'rs-madrasha' ); ?></div>
-                <div class="value"><?php echo esc_html( $row->subject ? $row->subject : '—' ); ?></div>
-            </div>
-            <div class="row">
-                <div class="label"><?php esc_html_e( 'Message', 'rs-madrasha' ); ?></div>
-                <div class="value message"><?php echo esc_html( $row->message ); ?></div>
-            </div>
+            <div class="row"><div class="label"><?php esc_html_e( 'Name', 'rs-madrasha' ); ?></div><div class="value"><?php echo esc_html( $row->name ); ?></div></div>
+            <div class="row"><div class="label"><?php esc_html_e( 'Submitted On', 'rs-madrasha' ); ?></div><div class="value"><?php echo esc_html( mysql2date( 'd F Y, h:i A', $row->created_at ) ); ?></div></div>
+            <div class="row"><div class="label"><?php esc_html_e( 'Phone', 'rs-madrasha' ); ?></div><div class="value"><?php echo $row->phone ? '<a href="tel:' . esc_attr( $row->phone ) . '">' . esc_html( $row->phone ) . '</a>' : '—'; ?></div></div>
+            <div class="row"><div class="label"><?php esc_html_e( 'Email', 'rs-madrasha' ); ?></div><div class="value"><?php echo $row->email ? '<a href="mailto:' . esc_attr( $row->email ) . '">' . esc_html( $row->email ) . '</a>' : '—'; ?></div></div>
+            <div class="row"><div class="label"><?php esc_html_e( 'Subject', 'rs-madrasha' ); ?></div><div class="value"><?php echo esc_html( $row->subject ? $row->subject : '—' ); ?></div></div>
+            <div class="row"><div class="label"><?php esc_html_e( 'Message', 'rs-madrasha' ); ?></div><div class="value message"><?php echo esc_html( $row->message ); ?></div></div>
         </div>
 
         <p style="margin-top:16px;">
-            <a href="<?php echo esc_url( $delete_url ); ?>"
-               class="button button-secondary"
-               style="color:#b32d2e;border-color:#b32d2e;"
+            <a href="<?php echo esc_url( $delete_url ); ?>" class="button button-secondary" style="color:#b32d2e;border-color:#b32d2e;"
                onclick="return confirm('<?php echo esc_js( __( 'Delete this query permanently?', 'rs-madrasha' ) ); ?>');">
                 <?php esc_html_e( 'Delete This Query', 'rs-madrasha' ); ?>
             </a>
@@ -362,12 +294,15 @@ function rs_render_contact_query_single_page() {
 
 
 /*--------------------------------------------------------
-    6) AJAX Handler — Save Frontend Form Submission (into SQL table)
+    6) FORM SUBMISSION — via admin-post.php (no AJAX/JS needed)
 --------------------------------------------------------*/
 function rs_handle_contact_form_submit() {
     global $wpdb;
 
-    check_ajax_referer( 'rs_contact_form_nonce', 'nonce' );
+    if ( ! isset( $_POST['rs_contact_nonce'] ) || ! wp_verify_nonce( $_POST['rs_contact_nonce'], 'rs_contact_form_action' ) ) {
+        wp_safe_redirect( add_query_arg( 'contact_status', 'error', wp_get_referer() ?: home_url() ) );
+        exit;
+    }
 
     $name    = isset( $_POST['name'] )    ? sanitize_text_field( $_POST['name'] )    : '';
     $phone   = isset( $_POST['phone'] )   ? sanitize_text_field( $_POST['phone'] )   : '';
@@ -375,28 +310,14 @@ function rs_handle_contact_form_submit() {
     $subject = isset( $_POST['subject'] ) ? sanitize_text_field( $_POST['subject'] ) : '';
     $message = isset( $_POST['message'] ) ? sanitize_textarea_field( $_POST['message'] ) : '';
 
-    $errors = array();
+    $valid = ( '' !== $name ) && preg_match( '/^[0-9]{11}$/', $phone ) && is_email( $email ) && ( '' !== $message );
 
-    if ( '' === $name ) {
-        $errors[] = __( 'নাম আবশ্যক', 'rs-madrasha' );
-    }
-    if ( ! preg_match( '/^[0-9]{11}$/', $phone ) ) {
-        $errors[] = __( 'সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন', 'rs-madrasha' );
-    }
-    if ( ! is_email( $email ) ) {
-        $errors[] = __( 'সঠিক ইমেইল দিন', 'rs-madrasha' );
-    }
-    if ( '' === $message ) {
-        $errors[] = __( 'বার্তা লিখুন', 'rs-madrasha' );
+    if ( ! $valid ) {
+        wp_safe_redirect( add_query_arg( 'contact_status', 'invalid', wp_get_referer() ?: home_url() ) );
+        exit;
     }
 
-    if ( ! empty( $errors ) ) {
-        wp_send_json_error( array( 'message' => implode( ' ', $errors ) ) );
-    }
-
-    // Make sure the table exists before inserting (safety net)
     rs_maybe_create_contact_queries_table();
-
     $table = rs_contact_queries_table_name();
 
     $inserted = $wpdb->insert(
@@ -412,101 +333,47 @@ function rs_handle_contact_form_submit() {
         array( '%s', '%s', '%s', '%s', '%s', '%s' )
     );
 
-    if ( false === $inserted ) {
-        wp_send_json_error( array(
-            'message' => __( 'দুঃখিত, ডাটাবেসে সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।', 'rs-madrasha' ),
-            'debug'   => $wpdb->last_error, // remove/hide this in production if you don't want to expose SQL errors
-        ) );
-    }
+    $status = ( false === $inserted ) ? 'dberror' : 'success';
 
-    wp_send_json_success( array(
-        'message' => __( 'আপনার বার্তা সফলভাবে পাঠানো হয়েছে। ধন্যবাদ!', 'rs-madrasha' ),
-    ) );
+    wp_safe_redirect( add_query_arg( 'contact_status', $status, wp_get_referer() ?: home_url() ) );
+    exit;
 }
-add_action( 'wp_ajax_rs_contact_form_submit', 'rs_handle_contact_form_submit' );
-add_action( 'wp_ajax_nopriv_rs_contact_form_submit', 'rs_handle_contact_form_submit' );
+add_action( 'admin_post_rs_contact_form_submit', 'rs_handle_contact_form_submit' );
+add_action( 'admin_post_nopriv_rs_contact_form_submit', 'rs_handle_contact_form_submit' );
 
 
 /*--------------------------------------------------------
-    7) Enqueue the frontend form script (inline — no external file needed)
+    7) BUILT-IN DIAGNOSTIC — shows on every wp-admin page.
+       Remove this whole block once everything is confirmed working.
 --------------------------------------------------------*/
-function rs_enqueue_contact_form_script() {
+add_action( 'admin_notices', function () {
+    global $wpdb;
+    $table = rs_contact_queries_table_name();
 
-    wp_register_script( 'rs-contact-form', '', array(), '1.0', true );
-    wp_enqueue_script( 'rs-contact-form' );
+    echo '<div class="notice notice-info"><p><strong>Contact Form Diagnostic:</strong></p><ul style="margin-left:20px;list-style:disc;">';
 
-    wp_localize_script( 'rs-contact-form', 'rsContactForm', array(
-        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-        'nonce'   => wp_create_nonce( 'rs_contact_form_nonce' ),
-    ) );
+    $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) ) === $table;
+    echo '<li>Table <code>' . esc_html( $table ) . '</code>: ' .
+         ( $table_exists ? '<strong style="color:green;">EXISTS ✔</strong>' : '<strong style="color:red;">DOES NOT EXIST ✘</strong>' ) . '</li>';
 
-    $inline_js = <<<'JS'
-document.addEventListener('DOMContentLoaded', function () {
-    var form        = document.getElementById('contactForm');
-    var successBox  = document.getElementById('contactSuccess');
-    var successText = document.getElementById('contactSuccessText');
-    var errorBox    = document.getElementById('contactError');
-    var errorText   = document.getElementById('contactErrorText');
-    var submitBtn   = document.getElementById('contactSubmitBtn');
-    var btnText     = document.getElementById('contactBtnText');
+    if ( $table_exists ) {
+        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+        echo '<li>Row count: <strong>' . esc_html( $count ) . '</strong></li>';
 
-    if (!form || typeof rsContactForm === 'undefined') {
-        return;
+        if ( $count > 0 ) {
+            $rows = $wpdb->get_results( "SELECT id, name, phone, email, created_at FROM {$table} ORDER BY id DESC LIMIT 3" );
+            echo '<li>Latest rows:<ul style="margin-left:20px;">';
+            foreach ( $rows as $r ) {
+                echo '<li>#' . esc_html( $r->id ) . ' — ' . esc_html( $r->name ) . ' — ' . esc_html( $r->phone ) . ' — ' . esc_html( $r->email ) . ' — ' . esc_html( $r->created_at ) . '</li>';
+            }
+            echo '</ul></li>';
+        }
     }
 
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+    // Is the admin-post handler actually registered?
+    $handler_registered = has_action( 'admin_post_nopriv_rs_contact_form_submit' );
+    echo '<li>Form handler registered: ' .
+         ( $handler_registered ? '<strong style="color:green;">YES ✔</strong>' : '<strong style="color:red;">NO ✘ — a fatal PHP error elsewhere in functions.php is stopping this file from loading.</strong>' ) . '</li>';
 
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            return;
-        }
-        form.classList.add('was-validated');
-
-        if (successBox) successBox.classList.add('d-none');
-        if (errorBox) errorBox.classList.add('d-none');
-
-        if (submitBtn) submitBtn.disabled = true;
-        var originalBtnText = btnText ? btnText.textContent : '';
-        if (btnText) btnText.textContent = 'পাঠানো হচ্ছে...';
-
-        var formData = new FormData(form);
-        formData.append('action', 'rs_contact_form_submit');
-        formData.append('nonce', rsContactForm.nonce);
-
-        fetch(rsContactForm.ajaxUrl, {
-            method: 'POST',
-            credentials: 'same-origin',
-            body: formData
-        })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-            if (submitBtn) submitBtn.disabled = false;
-            if (btnText) btnText.textContent = originalBtnText;
-
-            if (data.success) {
-                if (successText) successText.textContent = data.data.message;
-                if (successBox) successBox.classList.remove('d-none');
-                form.reset();
-                form.classList.remove('was-validated');
-            } else {
-                if (errorText) errorText.textContent = (data.data && data.data.message) || 'দুঃখিত, একটি ত্রুটি হয়েছে। আবার চেষ্টা করুন।';
-                if (errorBox) errorBox.classList.remove('d-none');
-                console.error('Contact form error:', data);
-            }
-        })
-        .catch(function (err) {
-            if (submitBtn) submitBtn.disabled = false;
-            if (btnText) btnText.textContent = originalBtnText;
-            if (errorText) errorText.textContent = 'নেটওয়ার্ক সমস্যা হয়েছে। আবার চেষ্টা করুন।';
-            if (errorBox) errorBox.classList.remove('d-none');
-            console.error('Contact form network error:', err);
-        });
-    });
-});
-JS;
-
-    wp_add_inline_script( 'rs-contact-form', $inline_js );
-}
-add_action( 'wp_enqueue_scripts', 'rs_enqueue_contact_form_script' );
+    echo '</ul></div>';
+} );

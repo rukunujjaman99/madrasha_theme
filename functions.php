@@ -12,6 +12,9 @@ require_once get_template_directory() . '/inc/notice-cpt.php';
 require_once get_template_directory() . '/inc/staff-cpt.php';
 require_once get_template_directory() . '/inc/committee-cpt.php';
 require_once get_template_directory() . '/inc/contact-cpt.php';
+require_once get_template_directory() . '/inc/admission-cpt.php';
+require_once get_template_directory() . '/inc/result-cpt.php';
+
 
 require_once get_template_directory() . '/inc/download-form-cpt.php';
 require_once get_template_directory() . '/inc/image-gallery-cpt.php';
@@ -138,3 +141,6 @@ function madarsa_setup_theme() {
 }
 
 add_action('after_setup_theme', 'madarsa_setup_theme');
+
+
+
