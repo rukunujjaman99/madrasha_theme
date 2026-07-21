@@ -764,13 +764,43 @@ $gallery_photos = new WP_Query( array(
 </div>
 
 <!-- NEW: stat strip -->
+<?php
+/**
+ * Frontend Output — Stats Strip
+ * Drop this where the static stat-strip block used to be.
+ * Renders nothing at all if the section is toggled off in the Customizer.
+ */
+
+if ( ! get_theme_mod( 'rs_stats_strip_enabled', true ) ) {
+    return; // Section is turned off — output nothing
+}
+
+$stat_defaults = array(
+    1 => array( 'count' => '80',   'label' => 'বছরের ঐতিহ্য' ),
+    2 => array( 'count' => '3500', 'label' => 'শিক্ষার্থী' ),
+    3 => array( 'count' => '120',  'label' => 'শিক্ষক ও কর্মকর্তা' ),
+    4 => array( 'count' => '6',    'label' => 'শাখা প্রতিষ্ঠান' ),
+);
+?>
+
 <div class="stat-strip reveal">
   <div class="container">
     <div class="row text-center g-3">
-      <div class="col-6 col-lg-3"><span class="stat-num" data-count="80">0</span><span class="stat-label">বছরের ঐতিহ্য</span></div>
-      <div class="col-6 col-lg-3"><span class="stat-num" data-count="3500">0</span><span class="stat-label">শিক্ষার্থী</span></div>
-      <div class="col-6 col-lg-3"><span class="stat-num" data-count="120">0</span><span class="stat-label">শিক্ষক ও কর্মকর্তা</span></div>
-      <div class="col-6 col-lg-3"><span class="stat-num" data-count="6">0</span><span class="stat-label">শাখা প্রতিষ্ঠান</span></div>
+
+      <?php foreach ( $stat_defaults as $i => $default ) :
+          $count = get_theme_mod( "rs_stat{$i}_count", $default['count'] );
+          $label = get_theme_mod( "rs_stat{$i}_label", $default['label'] );
+
+          if ( '' === $label && '' === $count ) {
+              continue;
+          }
+      ?>
+        <div class="col-6 col-lg-3">
+          <span class="stat-num" data-count="<?php echo esc_attr( $count ); ?>">0</span>
+          <span class="stat-label"><?php echo esc_html( $label ); ?></span>
+        </div>
+      <?php endforeach; ?>
+
     </div>
   </div>
 </div>

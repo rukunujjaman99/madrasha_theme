@@ -1542,4 +1542,77 @@ add_action( 'customize_register', 'rs_admission_page_customizer' );
 
 
 
+/**
+ * ==========================================================
+ * STATS STRIP — Customizer Settings
+ * A fixed set of 4 animated counters + a Show/Hide toggle
+ * for the entire section.
+ * ==========================================================
+ */
+
+function rs_stats_strip_customizer( $wp_customize ) {
+
+    $wp_customize->add_section( 'rs_stats_strip', array(
+        'title'    => __( 'Stats Strip', 'rs-madrasha' ),
+        'priority' => 104,
+    ) );
+
+    /*==============================
+        Section On/Off Toggle
+    ==============================*/
+    $wp_customize->add_setting( 'rs_stats_strip_enabled', array(
+        'default'           => true,
+        'sanitize_callback' => 'rs_sanitize_checkbox',
+    ) );
+
+    $wp_customize->add_control( 'rs_stats_strip_enabled', array(
+        'label'   => __( 'Show Stats Strip Section', 'rs-madrasha' ),
+        'section' => 'rs_stats_strip',
+        'type'    => 'checkbox',
+    ) );
+
+    /*==============================
+        4 Fixed Stat Rows
+    ==============================*/
+    $stat_defaults = array(
+        1 => array( 'count' => '80',   'label' => 'বছরের ঐতিহ্য' ),
+        2 => array( 'count' => '3500', 'label' => 'শিক্ষার্থী' ),
+        3 => array( 'count' => '120',  'label' => 'শিক্ষক ও কর্মকর্তা' ),
+        4 => array( 'count' => '6',    'label' => 'শাখা প্রতিষ্ঠান' ),
+    );
+
+    foreach ( $stat_defaults as $i => $stat ) {
+
+        $wp_customize->add_setting( "rs_stat{$i}_count", array(
+            'default'           => $stat['count'],
+            'sanitize_callback' => 'absint',
+        ) );
+        $wp_customize->add_control( "rs_stat{$i}_count", array(
+            'label'   => sprintf( __( 'Stat %d — Number', 'rs-madrasha' ), $i ),
+            'section' => 'rs_stats_strip',
+            'type'    => 'number',
+        ) );
+
+        $wp_customize->add_setting( "rs_stat{$i}_label", array(
+            'default'           => $stat['label'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        $wp_customize->add_control( "rs_stat{$i}_label", array(
+            'label'   => sprintf( __( 'Stat %d — Label', 'rs-madrasha' ), $i ),
+            'section' => 'rs_stats_strip',
+            'type'    => 'text',
+        ) );
+    }
+}
+add_action( 'customize_register', 'rs_stats_strip_customizer' );
+
+// Checkbox settings need their own sanitizer — Customizer has no built-in one.
+function rs_sanitize_checkbox( $checked ) {
+    return ( isset( $checked ) && true == $checked ) ? true : false;
+}
+
+
+
+
+
 ?>
