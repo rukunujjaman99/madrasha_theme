@@ -10,74 +10,60 @@ get_header();
   </div>
 </div>
 
+<?php
+/**
+ * Frontend Output — Publications Grid
+ * Drop this where the static publication cards used to be.
+ */
+
+$publications_query = new WP_Query( array(
+    'post_type'      => 'publication',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+) );
+?>
+
 <div class="container my-5">
   <div class="row g-4">
 
-    <div class="col-md-6 col-lg-4 reveal">
-      <div class="pub-card">
-        <div class="pub-cover"><i class="bi bi-journal-richtext"></i></div>
-        <div class="pub-body">
-          <h6>বার্ষিক ম্যাগাজিন "প্রদীপ্ত" ২০২৬</h6>
-          <small class="text-secondary d-block mb-2">শিক্ষার্থীদের লেখা, কবিতা ও প্রবন্ধ সংকলন</small>
-          <a href="#" class="btn btn-sm w-100" style="background:var(--rose);color:#fff;"><i class="bi bi-file-earmark-pdf"></i> PDF ডাউনলোড</a>
-        </div>
-      </div>
-    </div>
+    <?php if ( $publications_query->have_posts() ) : ?>
 
-    <div class="col-md-6 col-lg-4 reveal">
-      <div class="pub-card">
-        <div class="pub-cover"><i class="bi bi-mortarboard"></i></div>
-        <div class="pub-body">
-          <h6>পাঠ্যক্রম ও সিলেবাস — ১৪৪৭ হিজরী</h6>
-          <small class="text-secondary d-block mb-2">সকল বিভাগের বিস্তারিত পাঠ্যসূচি</small>
-          <a href="#" class="btn btn-sm w-100" style="background:var(--rose);color:#fff;"><i class="bi bi-file-earmark-pdf"></i> PDF ডাউনলোড</a>
-        </div>
-      </div>
-    </div>
+      <?php while ( $publications_query->have_posts() ) : $publications_query->the_post();
 
-    <div class="col-md-6 col-lg-4 reveal">
-      <div class="pub-card">
-        <div class="pub-cover"><i class="bi bi-clipboard-data"></i></div>
-        <div class="pub-body">
-          <h6>বার্ষিক প্রতিবেদন ২০২৫</h6>
-          <small class="text-secondary d-block mb-2">প্রতিষ্ঠানের বার্ষিক কার্যক্রম ও অর্জনের প্রতিবেদন</small>
-          <a href="#" class="btn btn-sm w-100" style="background:var(--rose);color:#fff;"><i class="bi bi-file-earmark-pdf"></i> PDF ডাউনলোড</a>
-        </div>
-      </div>
-    </div>
+        $icon        = get_post_meta( get_the_ID(), '_publication_icon', true ) ?: 'bi bi-journal-richtext';
+        $description = get_post_meta( get_the_ID(), '_publication_description', true );
+        $file_id     = get_post_meta( get_the_ID(), '_publication_file', true );
+        $file_url    = $file_id ? wp_get_attachment_url( $file_id ) : '';
+      ?>
 
-    <div class="col-md-6 col-lg-4 reveal">
-      <div class="pub-card">
-        <div class="pub-cover"><i class="bi bi-book"></i></div>
-        <div class="pub-body">
-          <h6>স্মরণিকা — রজত জয়ন্তী সংখ্যা</h6>
-          <small class="text-secondary d-block mb-2">প্রতিষ্ঠার ২৫ বছর পূর্তি স্মারক সংকলন</small>
-          <a href="#" class="btn btn-sm w-100" style="background:var(--rose);color:#fff;"><i class="bi bi-file-earmark-pdf"></i> PDF ডাউনলোড</a>
-        </div>
-      </div>
-    </div>
+        <div class="col-md-6 col-lg-4 reveal">
+          <div class="pub-card">
+            <div class="pub-cover"><i class="<?php echo esc_attr( $icon ); ?>"></i></div>
+            <div class="pub-body">
+              <h6><?php the_title(); ?></h6>
 
-    <div class="col-md-6 col-lg-4 reveal">
-      <div class="pub-card">
-        <div class="pub-cover"><i class="bi bi-newspaper"></i></div>
-        <div class="pub-body">
-          <h6>ত্রৈমাসিক নিউজলেটার — এপ্রিল-জুন ২০২৬</h6>
-          <small class="text-secondary d-block mb-2">সাম্প্রতিক কার্যক্রমের সংক্ষিপ্ত বিবরণ</small>
-          <a href="#" class="btn btn-sm w-100" style="background:var(--rose);color:#fff;"><i class="bi bi-file-earmark-pdf"></i> PDF ডাউনলোড</a>
-        </div>
-      </div>
-    </div>
+              <?php if ( $description ) : ?>
+                <small class="text-secondary d-block mb-2"><?php echo esc_html( $description ); ?></small>
+              <?php endif; ?>
 
-    <div class="col-md-6 col-lg-4 reveal">
-      <div class="pub-card">
-        <div class="pub-cover"><i class="bi bi-file-earmark-ruled"></i></div>
-        <div class="pub-body">
-          <h6>প্রাতিষ্ঠানিক নীতিমালা ও প্রবিধান</h6>
-          <small class="text-secondary d-block mb-2">শিক্ষার্থী ও কর্মচারী আচরণবিধি</small>
-          <a href="#" class="btn btn-sm w-100" style="background:var(--rose);color:#fff;"><i class="bi bi-file-earmark-pdf"></i> PDF ডাউনলোড</a>
+              <?php if ( $file_url ) : ?>
+                <a href="<?php echo esc_url( $file_url ); ?>" target="_blank" rel="noopener"
+                   class="btn btn-sm w-100" style="background:var(--rose);color:#fff;">
+                  <i class="bi bi-file-earmark-pdf"></i> <?php esc_html_e( 'PDF ডাউনলোড', 'rs-madrasha' ); ?>
+                </a>
+              <?php endif; ?>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+
+      <?php endwhile; wp_reset_postdata(); ?>
+
+    <?php else : ?>
+
+      <p class="text-center w-100"><?php esc_html_e( 'কোনো প্রকাশনা পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+    <?php endif; ?>
 
   </div>
 </div>

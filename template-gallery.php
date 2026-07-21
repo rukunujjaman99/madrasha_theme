@@ -11,94 +11,151 @@ get_header();
   </div>
 </div>
 
+<?php
+/**
+ * Frontend Output — Full Gallery Page
+ * Drop this where the static filterable grid used to be.
+ */
+
+$cat_labels = array(
+    'campus' => 'ক্যাম্পাস',
+    'event'  => 'অনুষ্ঠান',
+    'sports' => 'খেলাধুলা',
+    'class'  => 'শ্রেণিকক্ষ',
+);
+
+$initial_batch = 12; // how many photos show before "আরও ছবি দেখুন" is needed
+
+$gallery_query = new WP_Query( array(
+    'post_type'      => 'gallery',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+    'meta_query'     => array(
+        array( 'key' => '_thumbnail_id', 'compare' => 'EXISTS' ),
+    ),
+) );
+
+$total_photos = $gallery_query->post_count;
+?>
+
 <div class="container my-5">
+
   <div class="text-center gallery-filter reveal mb-4" id="galleryFilter">
-    <button class="active" data-cat="all">সকল</button>
-    <button data-cat="campus">ক্যাম্পাস</button>
-    <button data-cat="event">অনুষ্ঠান</button>
-    <button data-cat="sports">খেলাধুলা</button>
-    <button data-cat="class">শ্রেণিকক্ষ</button>
+    <button class="active" data-cat="all"><?php esc_html_e( 'সকল', 'rs-madrasha' ); ?></button>
+    <?php foreach ( $cat_labels as $slug => $label ) : ?>
+      <button data-cat="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $label ); ?></button>
+    <?php endforeach; ?>
   </div>
 
   <div class="row g-3" id="galleryGrid">
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="campus" data-img="https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1564769662533-4f00a87b4056?q=80&w=500" alt="প্রধান ফটক">
-        <div class="gallery-overlay"><span>প্রধান ফটক</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="class" data-img="https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?q=80&w=500" alt="শ্রেণিকক্ষ">
-        <div class="gallery-overlay"><span>শ্রেণিকক্ষ</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="campus" data-img="https://images.unsplash.com/photo-1580582932707-520aed937b7b?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?q=80&w=500" alt="লাইব্রেরি">
-        <div class="gallery-overlay"><span>লাইব্রেরি</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="campus" data-img="https://images.unsplash.com/photo-1519452575417-564c1401ecc0?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1519452575417-564c1401ecc0?q=80&w=500" alt="কেন্দ্রীয় মসজিদ">
-        <div class="gallery-overlay"><span>কেন্দ্রীয় মসজিদ</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="event" data-img="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=500" alt="বার্ষিক সম্মেলন">
-        <div class="gallery-overlay"><span>বার্ষিক সম্মেলন</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="sports" data-img="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?q=80&w=500" alt="ক্রীড়া অনুষ্ঠান">
-        <div class="gallery-overlay"><span>ক্রীড়া অনুষ্ঠান</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="event" data-img="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=500" alt="পুরস্কার বিতরণী">
-        <div class="gallery-overlay"><span>পুরস্কার বিতরণী</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="class" data-img="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=500" alt="পাঠদান">
-        <div class="gallery-overlay"><span>পাঠদান</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="sports" data-img="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=500" alt="বার্ষিক ক্রীড়া">
-        <div class="gallery-overlay"><span>বার্ষিক ক্রীড়া</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="campus" data-img="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=500" alt="প্রশাসনিক ভবন">
-        <div class="gallery-overlay"><span>প্রশাসনিক ভবন</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="event" data-img="https://images.unsplash.com/photo-1607013251379-e6eecfffe234?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1607013251379-e6eecfffe234?q=80&w=500" alt="দোয়া মাহফিল">
-        <div class="gallery-overlay"><span>দোয়া মাহফিল</span></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4 col-lg-3 reveal">
-      <div class="gallery-item" data-cat="class" data-img="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?q=80&w=1000">
-        <img src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?q=80&w=500" alt="গ্রন্থাগার পাঠ">
-        <div class="gallery-overlay"><span>গ্রন্থাগার পাঠ</span></div>
-      </div>
-    </div>
+
+    <?php if ( $gallery_query->have_posts() ) :
+
+        $i = 0;
+        while ( $gallery_query->have_posts() ) : $gallery_query->the_post();
+            $i++;
+
+            $category  = get_post_meta( get_the_ID(), '_gallery_category', true );
+            $caption   = get_the_title();
+            $full_url  = get_the_post_thumbnail_url( get_the_ID(), 'full' );
+            $thumb_url = get_the_post_thumbnail_url( get_the_ID(), 'medium' );
+
+            $is_extra = ( $i > $initial_batch );
+    ?>
+
+        <div class="col-6 col-md-4 col-lg-3 reveal<?php echo $is_extra ? ' gallery-extra d-none' : ''; ?>">
+            <div class="gallery-item" data-cat="<?php echo esc_attr( $category ); ?>" data-img="<?php echo esc_url( $full_url ); ?>">
+                <img src="<?php echo esc_url( $thumb_url ); ?>" alt="<?php echo esc_attr( $caption ); ?>">
+                <div class="gallery-overlay"><span><?php echo esc_html( $caption ); ?></span></div>
+            </div>
+        </div>
+
+    <?php
+        endwhile;
+        wp_reset_postdata();
+
+    else :
+    ?>
+
+        <p class="text-center w-100"><?php esc_html_e( 'কোনো ছবি পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+    <?php endif; ?>
+
   </div>
 
-  <div class="text-center mt-4 reveal">
-    <button class="btn" style="background:var(--navy);color:#fff;"><i class="bi bi-arrow-down-circle"></i> আরও ছবি দেখুন</button>
-  </div>
+  <?php if ( $total_photos > $initial_batch ) : ?>
+    <div class="text-center mt-4 reveal">
+      <button class="btn" id="galleryLoadMore" style="background:var(--navy);color:#fff;">
+        <i class="bi bi-arrow-down-circle"></i> <?php esc_html_e( 'আরও ছবি দেখুন', 'rs-madrasha' ); ?>
+      </button>
+    </div>
+  <?php endif; ?>
+
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var filterWrap = document.getElementById('galleryFilter');
+    var grid       = document.getElementById('galleryGrid');
+    var loadMoreBtn = document.getElementById('galleryLoadMore');
+
+    if (!filterWrap || !grid) {
+        return;
+    }
+
+    function getCols() {
+        return grid.querySelectorAll('.col-6');
+    }
+
+    filterWrap.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+
+        filterWrap.querySelectorAll('button').forEach(function (b) {
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+
+        var cat = btn.getAttribute('data-cat');
+
+        getCols().forEach(function (col) {
+            var item = col.querySelector('.gallery-item');
+            if (!item) return;
+
+            var matches = (cat === 'all') || (item.getAttribute('data-cat') === cat);
+
+            if (matches) {
+                col.classList.remove('d-none');
+                // When filtering, ignore the "extra" hidden batching — show all matches
+                col.classList.remove('gallery-extra');
+            } else {
+                col.classList.add('d-none');
+            }
+        });
+
+        // Hide "Load more" once a specific filter is active (everything matching is already shown)
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = (cat === 'all') ? '' : 'none';
+        }
+    });
+
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function () {
+            var hidden = grid.querySelectorAll('.gallery-extra.d-none');
+            var batch = Array.prototype.slice.call(hidden, 0, 12);
+
+            batch.forEach(function (col) {
+                col.classList.remove('d-none');
+            });
+
+            if (grid.querySelectorAll('.gallery-extra.d-none').length === 0) {
+                loadMoreBtn.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
 
 
 <?php get_footer(); ?>

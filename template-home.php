@@ -345,23 +345,72 @@ $students = new WP_Query( array(
       </div>
 
       <!-- NEW: upcoming event countdown -->
-      <div class="reveal p-4 mb-5" style="background:var(--cream);border-radius:10px;">
-        <div class="row align-items-center g-3">
-          <div class="col-md-6">
-            <div class="eyebrow" style="color:var(--rose);font-weight:700;letter-spacing:.05em;">আসন্ন অনুষ্ঠান</div>
-            <h5 class="fw-bold" style="color:var(--navy)">নতুন শিক্ষাবর্ষ ১৪৪৮ হিজরী উদ্বোধন</h5>
-            <p class="mb-0 text-secondary">১লা সেপ্টেম্বর, ২০২৬ — সকাল ৯টায় কেন্দ্রীয় মিলনায়তনে</p>
-          </div>
-          <div class="col-md-6">
-            <div id="eventCountdown" class="d-flex gap-2 justify-content-md-end justify-content-start">
-              <div class="text-center"><div class="fs-4 fw-bold cd-d" style="color:var(--rose)">00</div><small>দিন</small></div>
-              <div class="text-center"><div class="fs-4 fw-bold cd-h" style="color:var(--rose)">00</div><small>ঘণ্টা</small></div>
-              <div class="text-center"><div class="fs-4 fw-bold cd-m" style="color:var(--rose)">00</div><small>মিনিট</small></div>
-              <div class="text-center"><div class="fs-4 fw-bold cd-s" style="color:var(--rose)">00</div><small>সেকেন্ড</small></div>
-            </div>
+
+   <?php
+/**
+ * Frontend Output — Event Countdown Banner
+ * Drop this where the static countdown block used to be.
+ * Automatically shows whichever event has the soonest
+ * upcoming Countdown Target — skips past events entirely.
+ */
+
+$now = current_time( 'mysql' );
+
+$upcoming_event = new WP_Query( array(
+    'post_type'      => 'event_program',
+    'posts_per_page' => 1,
+    'orderby'        => 'meta_value',
+    'order'          => 'ASC',
+    'meta_key'       => '_event_countdown_target',
+    'meta_type'      => 'DATETIME',
+    'meta_query'     => array(
+        array(
+            'key'     => '_event_countdown_target',
+            'value'   => str_replace( ' ', 'T', $now ), // match the datetime-local format (YYYY-MM-DDTHH:MM)
+            'compare' => '>=',
+            'type'    => 'DATETIME',
+        ),
+    ),
+) );
+
+if ( $upcoming_event->have_posts() ) :
+    $upcoming_event->the_post();
+
+    $eyebrow      = get_post_meta( get_the_ID(), '_event_eyebrow', true ) ?: 'আসন্ন অনুষ্ঠান';
+    $display_text = get_post_meta( get_the_ID(), '_event_display_text', true );
+    $target       = get_post_meta( get_the_ID(), '_event_countdown_target', true );
+    $title        = get_the_title();
+
+    // Convert the datetime-local value to a JS-parseable ISO string
+    $target_iso = str_replace( ' ', 'T', $target );
+    ?>
+
+    <div class="reveal p-4 mb-5" style="background:var(--cream);border-radius:10px;">
+      <div class="row align-items-center g-3">
+        <div class="col-md-6">
+          <div class="eyebrow" style="color:var(--rose);font-weight:700;letter-spacing:.05em;"><?php echo esc_html( $eyebrow ); ?></div>
+          <h5 class="fw-bold" style="color:var(--navy)"><?php echo esc_html( $title ); ?></h5>
+          <?php if ( $display_text ) : ?>
+            <p class="mb-0 text-secondary"><?php echo esc_html( $display_text ); ?></p>
+          <?php endif; ?>
+        </div>
+        <div class="col-md-6">
+          <div id="eventCountdown" class="d-flex gap-2 justify-content-md-end justify-content-start" data-target="<?php echo esc_attr( $target_iso ); ?>">
+            <div class="text-center"><div class="fs-4 fw-bold cd-d" style="color:var(--rose)">00</div><small><?php esc_html_e( 'দিন', 'rs-madrasha' ); ?></small></div>
+            <div class="text-center"><div class="fs-4 fw-bold cd-h" style="color:var(--rose)">00</div><small><?php esc_html_e( 'ঘণ্টা', 'rs-madrasha' ); ?></small></div>
+            <div class="text-center"><div class="fs-4 fw-bold cd-m" style="color:var(--rose)">00</div><small><?php esc_html_e( 'মিনিট', 'rs-madrasha' ); ?></small></div>
+            <div class="text-center"><div class="fs-4 fw-bold cd-s" style="color:var(--rose)">00</div><small><?php esc_html_e( 'সেকেন্ড', 'rs-madrasha' ); ?></small></div>
           </div>
         </div>
       </div>
+    </div>
+
+   
+
+<?php
+    wp_reset_postdata();
+endif;
+?>
 
     <?php
 /**
@@ -727,57 +776,149 @@ $gallery_photos = new WP_Query( array(
 </div>
 
 <!-- NEW: programs -->
+
+<?php
+/**
+ * Frontend Output — Academic Programs Grid
+ * Drop this where the static program cards used to be.
+ */
+
+// Map preset names to the theme's actual CSS variables
+$preset_css_vars = array(
+    'rose'   => 'var(--rose)',
+    'green'  => 'var(--green)',
+    'orange' => 'var(--orange)',
+    'navy'   => 'var(--navy)',
+);
+
+$programs_query = new WP_Query( array(
+    'post_type'      => 'academic_program',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+) );
+?>
+
 <div class="container my-5">
-  <div class="section-title reveal"><h3>শিক্ষা কার্যক্রম</h3><p>ইবতেদায়ী থেকে কামিল মাস্টার্স পর্যন্ত সকল স্তরের পাঠদান</p></div>
+  <div class="section-title reveal">
+    <h3><?php echo esc_html( get_theme_mod( 'rs_program_section_title', 'শিক্ষা কার্যক্রম' ) ); ?></h3>
+    <p><?php echo esc_html( get_theme_mod( 'rs_program_section_subtitle', 'ইবতেদায়ী থেকে কামিল মাস্টার্স পর্যন্ত সকল স্তরের পাঠদান' ) ); ?></p>
+  </div>
+
   <div class="row g-4">
-    <div class="col-md-6 col-lg-3 reveal">
-      <div class="program-card"><div class="band" style="background:var(--rose)"></div><div class="body"><h5>দাখিল</h5><p class="text-secondary small mb-2">৬ষ্ঠ থেকে ১০ম শ্রেণি — মাধ্যমিক স্তর</p><a href="notice.html" class="small fw-bold" style="color:var(--navy);text-decoration:none;">বিস্তারিত »</a></div></div>
-    </div>
-    <div class="col-md-6 col-lg-3 reveal">
-      <div class="program-card"><div class="band" style="background:var(--green)"></div><div class="body"><h5>আলিম</h5><p class="text-secondary small mb-2">উচ্চ মাধ্যমিক স্তর — বিজ্ঞান ও সাধারণ শাখা</p><a href="notice.html" class="small fw-bold" style="color:var(--navy);text-decoration:none;">বিস্তারিত »</a></div></div>
-    </div>
-    <div class="col-md-6 col-lg-3 reveal">
-      <div class="program-card"><div class="band" style="background:var(--orange)"></div><div class="body"><h5>ফাযিল</h5><p class="text-secondary small mb-2">স্নাতক (পাস ও অনার্স) স্তর</p><a href="notice.html" class="small fw-bold" style="color:var(--navy);text-decoration:none;">বিস্তারিত »</a></div></div>
-    </div>
-    <div class="col-md-6 col-lg-3 reveal">
-      <div class="program-card"><div class="band" style="background:var(--navy)"></div><div class="body"><h5>কামিল</h5><p class="text-secondary small mb-2">স্নাতকোত্তর — হাদিস, ফিকহ, তাফসির</p><a href="notice.html" class="small fw-bold" style="color:var(--navy);text-decoration:none;">বিস্তারিত »</a></div></div>
-    </div>
+
+    <?php if ( $programs_query->have_posts() ) : ?>
+
+      <?php while ( $programs_query->have_posts() ) : $programs_query->the_post();
+
+        $band_type   = get_post_meta( get_the_ID(), '_program_band_type', true ) ?: 'preset';
+        $band_preset = get_post_meta( get_the_ID(), '_program_band_preset', true ) ?: 'rose';
+        $band_custom = get_post_meta( get_the_ID(), '_program_band_custom', true );
+
+        $band_color = ( 'custom' === $band_type && $band_custom )
+            ? $band_custom
+            : ( isset( $preset_css_vars[ $band_preset ] ) ? $preset_css_vars[ $band_preset ] : 'var(--rose)' );
+
+        $description = get_post_meta( get_the_ID(), '_program_description', true );
+        $link_url    = get_post_meta( get_the_ID(), '_program_link', true );
+      ?>
+
+        <div class="col-md-6 col-lg-3 reveal">
+          <div class="program-card">
+            <div class="band" style="background:<?php echo esc_attr( $band_color ); ?>"></div>
+            <div class="body">
+              <h5><?php the_title(); ?></h5>
+
+              <?php if ( $description ) : ?>
+                <p class="text-secondary small mb-2"><?php echo esc_html( $description ); ?></p>
+              <?php endif; ?>
+
+              <?php if ( $link_url ) : ?>
+                <a href="<?php echo esc_url( $link_url ); ?>" class="small fw-bold" style="color:var(--navy);text-decoration:none;">
+                  <?php esc_html_e( 'বিস্তারিত »', 'rs-madrasha' ); ?>
+                </a>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+
+      <?php endwhile; wp_reset_postdata(); ?>
+
+    <?php else : ?>
+
+      <p class="text-center w-100"><?php esc_html_e( 'কোনো প্রোগ্রাম পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+    <?php endif; ?>
+
   </div>
 </div>
 
 <!-- NEW: testimonials -->
 <div class="container my-5">
   <div class="section-title reveal"><h3>শিক্ষার্থী ও অভিভাবকদের মতামত</h3></div>
-  <div id="testiCarousel" class="carousel slide reveal" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <div class="testi-card text-center">
-              <i class="bi bi-quote"></i>
-              <p class="fst-italic">এই মাদরাসায় আমার সন্তানের দ্বীনি ও একাডেমিক উভয় দিকের বিকাশ দেখে আমি সন্তুষ্ট।</p>
-              <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200" class="testi-photo mb-2">
-              <div class="fw-bold" style="color:var(--navy)">অভিভাবক, দাখিল বিভাগ</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <div class="testi-card text-center">
-              <i class="bi bi-quote"></i>
-              <p class="fst-italic">শিক্ষকদের আন্তরিকতা ও লাইব্রেরির সুবিধা আমাকে পড়াশোনায় অনেক সাহায্য করেছে।</p>
-              <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=200" class="testi-photo mb-2">
-              <div class="fw-bold" style="color:var(--navy)">শিক্ষার্থী, কামিল বিভাগ</div>
-            </div>
+  <?php
+/**
+ * Frontend Output — Testimonials Carousel
+ * Drop this where the static carousel used to be.
+ */
+
+$testimonials_query = new WP_Query( array(
+    'post_type'      => 'testimonial',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+) );
+
+$total = $testimonials_query->post_count;
+?>
+
+<?php if ( $total > 0 ) : ?>
+
+<div id="testiCarousel" class="carousel slide reveal" data-bs-ride="carousel">
+  <div class="carousel-inner">
+
+    <?php $i = 0; while ( $testimonials_query->have_posts() ) : $testimonials_query->the_post();
+        $i++;
+        $quote       = get_post_meta( get_the_ID(), '_testimonial_quote', true );
+        $designation = get_post_meta( get_the_ID(), '_testimonial_designation', true );
+        $photo_url   = has_post_thumbnail() ? get_the_post_thumbnail_url( get_the_ID(), 'thumbnail' ) : '';
+        $is_first    = ( 1 === $i );
+    ?>
+
+    <div class="carousel-item<?php echo $is_first ? ' active' : ''; ?>">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="testi-card text-center">
+            <i class="bi bi-quote"></i>
+            <p class="fst-italic"><?php echo esc_html( $quote ); ?></p>
+
+            <?php if ( $photo_url ) : ?>
+              <img src="<?php echo esc_url( $photo_url ); ?>" class="testi-photo mb-2" alt="<?php echo esc_attr( $designation ); ?>">
+            <?php endif; ?>
+
+            <div class="fw-bold" style="color:var(--navy)"><?php echo esc_html( $designation ); ?></div>
           </div>
         </div>
       </div>
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#testiCarousel" data-bs-slide="prev" style="width:5%"><span class="carousel-control-prev-icon" style="filter:invert(1) grayscale(1);"></span></button>
-    <button class="carousel-control-next" type="button" data-bs-target="#testiCarousel" data-bs-slide="next" style="width:5%"><span class="carousel-control-next-icon" style="filter:invert(1) grayscale(1);"></span></button>
+
+    <?php endwhile; wp_reset_postdata(); ?>
+
   </div>
+
+  <?php if ( $total > 1 ) : ?>
+    <button class="carousel-control-prev" type="button" data-bs-target="#testiCarousel" data-bs-slide="prev" style="width:5%">
+      <span class="carousel-control-prev-icon" style="filter:invert(1) grayscale(1);"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#testiCarousel" data-bs-slide="next" style="width:5%">
+      <span class="carousel-control-next-icon" style="filter:invert(1) grayscale(1);"></span>
+    </button>
+  <?php endif; ?>
+
+</div>
+
+<?php endif; ?>
+
 </div>
 
 <!-- FOOTER -->

@@ -9,94 +9,147 @@ get_header();
     <div class="breadcrumb-custom"><a href="index.html">হোম</a> / ভিডিও গ্যালারি</div>
   </div>
 </div>
+<?php
+/**
+ * Frontend Output — Video Gallery
+ * Drop this where the static video grid used to be.
+ * Filter buttons are generated dynamically from whatever
+ * "video_category" terms currently exist — add a new category
+ * in wp-admin and it shows up here automatically.
+ */
+
+$categories = get_terms( array(
+    'taxonomy'   => 'video_category',
+    'hide_empty' => false,
+    'orderby'    => 'term_order',
+) );
+
+$videos_query = new WP_Query( array(
+    'post_type'      => 'video',
+    'posts_per_page' => -1,
+    'orderby'        => 'menu_order',
+    'order'          => 'ASC',
+) );
+?>
 
 <div class="container my-5">
+
   <div class="text-center gallery-filter reveal mb-4" id="videoFilter">
-    <button class="active" data-cat="all">সকল</button>
-    <button data-cat="event">অনুষ্ঠান</button>
-    <button data-cat="campus">ক্যাম্পাস ভ্রমণ</button>
-    <button data-cat="cultural">সাংস্কৃতিক</button>
+    <button class="active" data-cat="all"><?php esc_html_e( 'সকল', 'rs-madrasha' ); ?></button>
+    <?php if ( ! is_wp_error( $categories ) ) : ?>
+      <?php foreach ( $categories as $term ) : ?>
+        <button data-cat="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></button>
+      <?php endforeach; ?>
+    <?php endif; ?>
   </div>
 
   <div class="row g-4" id="videoGrid">
 
-    <div class="col-md-6 col-lg-4 video-col reveal">
-      <div class="video-card" data-cat="event" data-yt="dQw4w9WgXcQ">
-        <div class="video-thumb-wrap">
-          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="বার্ষিক সম্মেলন">
-          <div class="play-btn"><i class="bi bi-play-fill"></i></div>
-        </div>
-        <div class="video-info"><h6>বার্ষিক সম্মেলন ২০২৬</h6><small class="text-secondary">৪:৩২ মিনিট</small></div>
-      </div>
-    </div>
+    <?php if ( $videos_query->have_posts() ) : ?>
 
-    <div class="col-md-6 col-lg-4 video-col reveal">
-      <div class="video-card" data-cat="campus" data-yt="dQw4w9WgXcQ">
-        <div class="video-thumb-wrap">
-          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="ক্যাম্পাস ভ্রমণ">
-          <div class="play-btn"><i class="bi bi-play-fill"></i></div>
-        </div>
-        <div class="video-info"><h6>ক্যাম্পাস ভার্চুয়াল ভ্রমণ</h6><small class="text-secondary">৬:১০ মিনিট</small></div>
-      </div>
-    </div>
+      <?php while ( $videos_query->have_posts() ) : $videos_query->the_post();
 
-    <div class="col-md-6 col-lg-4 video-col reveal">
-      <div class="video-card" data-cat="cultural" data-yt="dQw4w9WgXcQ">
-        <div class="video-thumb-wrap">
-          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="সাংস্কৃতিক অনুষ্ঠান">
-          <div class="play-btn"><i class="bi bi-play-fill"></i></div>
-        </div>
-        <div class="video-info"><h6>বার্ষিক সাংস্কৃতিক সন্ধ্যা</h6><small class="text-secondary">৮:৪৫ মিনিট</small></div>
-      </div>
-    </div>
+        $youtube_id = get_post_meta( get_the_ID(), '_video_youtube_id', true );
+        $title      = get_the_title();
+        $terms      = get_the_terms( get_the_ID(), 'video_category' );
+        $cat_slugs  = ( $terms && ! is_wp_error( $terms ) ) ? wp_list_pluck( $terms, 'slug' ) : array();
 
-    <div class="col-md-6 col-lg-4 video-col reveal">
-      <div class="video-card" data-cat="event" data-yt="dQw4w9WgXcQ">
-        <div class="video-thumb-wrap">
-          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="পুরস্কার বিতরণী">
-          <div class="play-btn"><i class="bi bi-play-fill"></i></div>
-        </div>
-        <div class="video-info"><h6>পুরস্কার বিতরণী অনুষ্ঠান</h6><small class="text-secondary">৩:৫৫ মিনিট</small></div>
-      </div>
-    </div>
+        if ( ! $youtube_id ) {
+            continue; // skip entries with no valid YouTube video set
+        }
+      ?>
 
-    <div class="col-md-6 col-lg-4 video-col reveal">
-      <div class="video-card" data-cat="campus" data-yt="dQw4w9WgXcQ">
-        <div class="video-thumb-wrap">
-          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="লাইব্রেরি পরিচিতি">
-          <div class="play-btn"><i class="bi bi-play-fill"></i></div>
+        <div class="col-md-6 col-lg-4 video-col reveal">
+          <div class="video-card" data-cat="<?php echo esc_attr( implode( ' ', $cat_slugs ) ); ?>" data-yt="<?php echo esc_attr( $youtube_id ); ?>">
+            <div class="video-thumb-wrap">
+              <img src="https://img.youtube.com/vi/<?php echo esc_attr( $youtube_id ); ?>/hqdefault.jpg" alt="<?php echo esc_attr( $title ); ?>">
+              <div class="play-btn"><i class="bi bi-play-fill"></i></div>
+            </div>
+            <div class="video-info">
+              <h6><?php echo esc_html( $title ); ?></h6>
+            </div>
+          </div>
         </div>
-        <div class="video-info"><h6>লাইব্রেরি ও ক্লাসরুম পরিচিতি</h6><small class="text-secondary">৫:২০ মিনিট</small></div>
-      </div>
-    </div>
 
-    <div class="col-md-6 col-lg-4 video-col reveal">
-      <div class="video-card" data-cat="cultural" data-yt="dQw4w9WgXcQ">
-        <div class="video-thumb-wrap">
-          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="ক্রীড়া প্রতিযোগিতা">
-          <div class="play-btn"><i class="bi bi-play-fill"></i></div>
-        </div>
-        <div class="video-info"><h6>বার্ষিক ক্রীড়া প্রতিযোগিতা</h6><small class="text-secondary">৭:১৫ মিনিট</small></div>
-      </div>
-    </div>
+      <?php endwhile; wp_reset_postdata(); ?>
+
+    <?php else : ?>
+
+      <p class="text-center w-100"><?php esc_html_e( 'কোনো ভিডিও পাওয়া যায়নি।', 'rs-madrasha' ); ?></p>
+
+    <?php endif; ?>
 
   </div>
 </div>
 
-<!-- Video modal -->
-<div class="modal fade" id="videoModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark">
-      <div class="modal-header border-0">
-        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-0">
-        <div class="ratio ratio-16x9">
-          <iframe id="videoFrame" src="" title="Video" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var filterWrap = document.getElementById('videoFilter');
+    var grid       = document.getElementById('videoGrid');
+
+    if (!grid) {
+        return;
+    }
+
+    // Inline play — replaces the thumbnail with an embedded iframe
+    // in the SAME card position. No modal/lightbox involved.
+    grid.addEventListener('click', function (e) {
+        var playBtn = e.target.closest('.play-btn');
+        if (!playBtn) return;
+
+        var card      = playBtn.closest('.video-card');
+        var thumbWrap = card.querySelector('.video-thumb-wrap');
+        var ytId      = card.getAttribute('data-yt');
+
+        if (!ytId || !thumbWrap) return;
+
+        var iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/' + ytId + '?autoplay=1&rel=0';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.position = 'absolute';
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+
+        thumbWrap.style.position = 'relative';
+        thumbWrap.innerHTML = '';
+        thumbWrap.appendChild(iframe);
+    });
+
+    if (!filterWrap) {
+        return;
+    }
+
+    filterWrap.addEventListener('click', function (e) {
+        var btn = e.target.closest('button');
+        if (!btn) return;
+
+        filterWrap.querySelectorAll('button').forEach(function (b) {
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+
+        var cat = btn.getAttribute('data-cat');
+
+        grid.querySelectorAll('.video-col').forEach(function (col) {
+            var card = col.querySelector('.video-card');
+            if (!card) return;
+
+            var cardCats = card.getAttribute('data-cat').split(' ');
+            var show = (cat === 'all') || cardCats.indexOf(cat) !== -1;
+            col.style.display = show ? '' : 'none';
+        });
+    });
+});
+</script>
+
+
+
+
+
+
 
 <?php get_footer(); ?>

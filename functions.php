@@ -14,6 +14,12 @@ require_once get_template_directory() . '/inc/committee-cpt.php';
 require_once get_template_directory() . '/inc/contact-cpt.php';
 require_once get_template_directory() . '/inc/admission-cpt.php';
 require_once get_template_directory() . '/inc/result-cpt.php';
+require_once get_template_directory() . '/inc/video-cpt.php';
+require_once get_template_directory() . '/inc/publication-cpt.php';
+require_once get_template_directory() . '/inc/testimonial-cpt.php';
+require_once get_template_directory() . '/inc/academic-cpt.php';
+require_once get_template_directory() . '/inc/event-cpt.php';
+
 
 
 require_once get_template_directory() . '/inc/download-form-cpt.php';
@@ -98,13 +104,23 @@ function madarsa_enqueue_assets() {
             true
         );
 
-           wp_enqueue_script(
-            'contact-form',
-            get_template_directory_uri() . '/assets/js/contact.js',
-            array('bootstrap'),
-            filemtime(get_template_directory() . '/assets/js/contact.js'),
-            true
-        );
+            wp_enqueue_script(
+                'contact-form',
+                get_template_directory_uri() . '/assets/js/contact.js',
+                array('bootstrap'),
+                filemtime(get_template_directory() . '/assets/js/contact.js'),
+                true
+            );
+            
+            wp_enqueue_script(
+                'event-countdown',
+                get_template_directory_uri() . '/assets/js/event.js',
+                array('bootstrap'),
+                filemtime(get_template_directory() . '/assets/js/event.js'),
+                true
+            );
+
+
 
 
 
