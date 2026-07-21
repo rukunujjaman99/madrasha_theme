@@ -6,7 +6,7 @@ get_header();
 <div class="page-hero">
   <div class="container">
     <h1>ভিডিও গ্যালারি</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / ভিডিও গ্যালারি</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / ভিডিও গ্যালারি</div>
   </div>
 </div>
 <?php
@@ -31,6 +31,8 @@ $videos_query = new WP_Query( array(
     'order'          => 'ASC',
 ) );
 ?>
+
+
 
 <div class="container my-5">
 

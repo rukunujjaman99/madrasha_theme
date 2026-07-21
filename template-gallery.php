@@ -7,7 +7,7 @@ get_header();
 <div class="page-hero">
   <div class="container">
     <h1>ফটো গ্যালারি</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / গ্যালারি</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / গ্যালারি</div>
   </div>
 </div>
 

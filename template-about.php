@@ -10,7 +10,7 @@ get_header();
 <div class="page-hero">
   <div class="container">
     <h1>আমাদের পরিচিতি</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / পরিচিতি</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / পরিচিতি</div>
   </div>
 </div>
 

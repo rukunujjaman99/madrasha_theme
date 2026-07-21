@@ -6,7 +6,7 @@ get_header();
 <div class="page-hero">
   <div class="container">
     <h1>প্রকাশনা</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / প্রকাশনা</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / প্রকাশনা</div>
   </div>
 </div>
 

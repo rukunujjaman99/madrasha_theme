@@ -12,7 +12,7 @@ get_header(); ?>
 <div class="page-hero">
   <div class="container">
     <h1>শিক্ষকবৃন্দ</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / শিক্ষকবৃন্দ</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / শিক্ষকবৃন্দ</div>
   </div>
 </div>
 

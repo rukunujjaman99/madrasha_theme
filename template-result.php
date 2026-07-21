@@ -9,7 +9,7 @@ get_header();
 <div class="page-hero">
   <div class="container">
     <h1>পরীক্ষার ফলাফল</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / ফলাফল</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / ফলাফল</div>
   </div>
 </div>
 

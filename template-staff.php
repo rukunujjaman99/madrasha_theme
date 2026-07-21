@@ -10,7 +10,7 @@ get_header();
 <div class="page-hero">
   <div class="container">
     <h1>কর্মকর্তা ও কর্মচারী</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / কর্মকর্তা ও কর্মচারী</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / কর্মকর্তা ও কর্মচারী</div>
   </div>
 </div>
 

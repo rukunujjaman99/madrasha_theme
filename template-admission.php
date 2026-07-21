@@ -6,7 +6,7 @@ get_header();
 <div class="page-hero">
   <div class="container">
     <h1>ভর্তি তথ্য ও ফরম</h1>
-    <div class="breadcrumb-custom"><a href="index.html">হোম</a> / ভর্তি</div>
+    <div class="breadcrumb-custom"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">হোম</a> / ভর্তি</div>
   </div>
 </div>
 
