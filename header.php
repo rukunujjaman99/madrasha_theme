@@ -88,7 +88,9 @@ $banner = wp_get_attachment_image_url(get_theme_mod('rs_header_banner'),'full');
         <div class="d-flex align-items-center gap-3">
 
             <?php if($logo): ?>
-                <img src="<?php echo esc_url($logo); ?>" class="logo-img" alt="<?php bloginfo('name'); ?>">
+                 <a href="<?php echo esc_url( home_url( '/' ) ); ?>">
+                    <img src="<?php echo esc_url($logo); ?>" class="logo-img" alt="<?php bloginfo('name'); ?>">
+                 </a>
             <?php endif; ?>
 
             <div>
